@@ -2,94 +2,116 @@
 \ProvidesClass{UUposter}[2011/09/01 Class for making scientific posters in the style of Uppsala University]
 \RequirePackage{xkeyval}
 
-\newif\if@uured
-\newif\if@uugrey
-\newif\if@uulogovit
-\newif\if@uulogosv
-\newif\if@uulogofour
-\newif\if@uulogotwo
-\newif\if@uutop
-\newif\if@uulandscape
-\newif\if@uuruled
-\newif\if@uucornersigil
-\newif\if@uumarginalsigil
+\newif\if@uuposter@red
+\newif\if@uuposter@grey
+\newif\if@uuposter@top
+\newif\if@uuposter@landscape
+\newif\if@uuposter@ruled
+\newif\if@uuposter@sigil@corner
+\newif\if@uuposter@sigil@margin
+\newif\if@uuposter@sigil@left
+\newif\if@uuposter@sigil@right
+\newif\if@uuposter@sigil@top
+\newif\if@uuposter@sigil@bottom
+\newlength\logoboxwidth
 \DeclareOptionX{red}{
-	\@uuredtrue
-	\@uugreyfalse	
-	\@uulogovittrue
-	\@uulogotwofalse
-	\@uulogofourfalse
-	\@uulogosvfalse
+	\@uuposter@redtrue
+	\@uuposter@greyfalse	
+	\ExecuteOptionsX{logo=vit}
 }
 \DeclareOptionX{grey}{
-	\@uuredfalse
-	\@uugreytrue
-	\@uulogovitfalse
-	\@uulogotwofalse
-	\@uulogofourtrue
-	\@uulogosvfalse
+	\@uuposter@redfalse
+	\@uuposter@greytrue
+	\ExecuteOptionsX{logo=4f}
 }
-\DeclareOptionX{top}{
-	\@uutoptrue
-}
+\DeclareOptionX{top}{\@uuposter@toptrue}
 \DeclareOptionX{landscape}{
-	\PassOptionsToClass{\CurrentOption}{a0poster}
-	\@uulandscapetrue
+	\ExecuteOptionsX{sidebarwidth=0.15,titleheight=0.075,columns=3}
+	\@uuposter@landscapetrue
+}
+\DeclareOptionX{portrait}{
+	\ExecuteOptionsX{sidebarwidth=0.20,titleheight=0.1,columns=2}
+	\@uuposter@landscapefalse
 }
 \DeclareOptionX{columns}[2]{\def \uucolumns {#1}}
-\DeclareOptionX{ruled}{\@uuruledtrue}
-\DeclareOptionX{arial}{
-	\PassOptionsToClass{\CurrentOption}{UUxetex}
-}
-\DeclareOptionX{times}{
-	\PassOptionsToClass{\CurrentOption}{UUxetex}
-}
-\DeclareOptionX{noxits}{
-	\PassOptionsToClass{\CurrentOption}{UUxetex}
-}
+\DeclareOptionX{ruled}{\@uuposter@ruledtrue}
+
+\DeclareOptionX{logo}[4f]{\def\includelogo{\includegraphics[width=\logoboxwidth]{UU_logo_#1_84}}}
 
 \newcommand{\includesigil}{
 }
-\define@choicekey{UUposter.cls}{sigil}[\val\nr]{NW,NE,SW,SE,marginal}{
+\define@choicekey+{UUposter.cls}{sigil}[\val\nr]{NW,NE,SW,SE,margin}[SE]{
 	\ifcase\nr\relax
-		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{18370_UU_sigill_NV_10black}}
-		\@uucornersigiltrue
+		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SO_10Svart}}
+		\@uuposter@sigil@cornertrue
+		\@uuposter@sigil@marginfalse
+		\@uuposter@sigil@toptrue
+		\@uuposter@sigil@lefttrue
+		\@uuposter@sigil@bottomfalse
+		\@uuposter@sigil@rightfalse
 	\or 
-		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{18370_UU_sigill_NV_10black}}
-		\@uucornersigiltrue
+		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SV_10Svart}}
+		\@uuposter@sigil@cornertrue
+		\@uuposter@sigil@marginfalse
+		\@uuposter@sigil@toptrue
+		\@uuposter@sigil@righttrue
+		\@uuposter@sigil@bottomfalse
+		\@uuposter@sigil@leftfalse
 	\or
-		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{18370_UU_sigill_NV_10black}}
-		\@uucornersigiltrue
+		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NO_10Svart}}
+		\@uuposter@sigil@cornertrue
+		\@uuposter@sigil@marginfalse
+		\@uuposter@sigil@bottomtrue
+		\@uuposter@sigil@lefttrue
+		\@uuposter@sigil@topfalse
+		\@uuposter@sigil@rightfalse
 	\or
-		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{18370_UU_sigill_NV_10black}}
-		\@uucornersigiltrue
+		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NV_10Svart}}
+		\@uuposter@sigil@cornertrue
+		\@uuposter@sigil@marginfalse
+		\@uuposter@sigil@bottomtrue
+		\@uuposter@sigil@righttrue
+		\@uuposter@sigil@topfalse
+		\@uuposter@sigil@leftfalse
 	\or
-		\@uumarginalsigiltrue
+		\@uuposter@sigil@margintrue
+		\@uuposter@sigil@cornerfalse
+		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{UU_marginalsigill_5Svart}}
 	\fi
+}{%
+	\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}
 }
+\DeclareOptionX{sigilwidth}[0.5]{
+	\def\sigilproportion{#1}
+}
+\DeclareOptionX{sidebarwidth}[0.2]{
+	\def\sidebarproportion{#1}
+}
+\DeclareOptionX{titleheight}[0.1]{
+	\def\titleproportion{#1}
+}
+%%Pass xetex font options off to UUxetex.sty:
+\DeclareOptionX{math}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
+\DeclareOptionX{noxits}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
+\DeclareOptionX{serif}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
+\DeclareOptionX{sanserif}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
+	
 %%Assume unrecognized options are for a0poster class:
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{a0poster}}
-\ExecuteOptionsX{grey,columns}
+\ExecuteOptionsX{grey,sigilwidth,portrait}
 \ProcessOptionsX\relax
+%%a0poster doesn't seem to like getting multiples of these:
+\if@uuposter@landscape
+	\PassOptionsToClass{landscape}{a0poster}
+\else
+	\PassOptionsToClass{portrait}{a0poster}
+\fi
 \LoadClass{a0poster}
 
 \RequirePackage{mathtools}
 
 %%% Fonts with xetex and fontspec:
 \RequirePackage{UUxetex}
-%\RequirePackage{xunicode} %Unicode extras!
-%\RequirePackage{xltxtra}
-%\RequirePackage{unicode-math}
-%\setmathfont{XITS Math}
-%\setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math}
-%
-%\defaultfontfeatures{Mapping=tex-text}
-%\renewcommand{\nobreakspace}{\nobreak\ }
-%
-%\setsansfont{Gill Alt One MT}
-%\setmainfont[Ligatures={Common},BoldFont={Berling Bold}, ItalicFont={Berling Italic},Numbers={OldStyle,Proportional}]{Berling Roman}
-%\newfontinstance\uubodyfont[Ligatures={Common},BoldFont={Berling Bold}, ItalicFont={Berling Italic},Numbers={OldStyle,Proportional}]{Berling Roman}
-%\setromanfont{XITS}
 
 %%% Colors:
 \RequirePackage{xcolor}
@@ -98,43 +120,29 @@
 \definecolor{uumidgrey}{RGB}{190,190,190}
 \definecolor{uudarkgrey}{RGB}{130,130,130}
 
-\if@uured
+\if@uuposter@red
 	\definecolor{uu@bg}{named}{uured}
 	\definecolor{uu@fg}{named}{white}
 \else
-	\if@uugrey
+	\if@uuposter@grey
 		\definecolor{uu@bg}{named}{uulightgrey}
 		\definecolor{uu@fg}{named}{black}
 	\fi
 \fi
 %%% To fix footnotes in the sidebar minipage:
 \RequirePackage[hang,norule,multiple]{footmisc}
-\setlength{\footnotemargin}{1.8em}
+\setlength{\footnotemargin}{2em}
 
 \RequirePackage{graphicx}
 
 %%% flowfram is used to control the poster layout:
 \RequirePackage{flowfram}
-\newlength\sigilwidth
-\if@uucornersigil
-	\setlength{\sigilwidth}{.5\textwidth}
-	\newlength\sigiloffset
-	\setlength{\sigiloffset}{\textwidth}
-	\addtolength{\sigiloffset}{-\sigilwidth}
-	\newstaticframe{\sigilwidth}{\sigilwidth}{\sigiloffset}{0pt}[background]
-	\setstaticframe*{background}{valign=b}
-\fi
 \setlength{\vcolumnsep}{2\baselineskip}
-\setlength{\columnsep}{\vcolumnsep}
-\newlength\logoboxwidth
-\if@uulandscape
-	\setlength{\logoboxwidth}{0.15\textwidth}
-\else
-	\setlength{\logoboxwidth}{0.2\textwidth}
-\fi
+\setlength{\columnsep}{2\baselineskip}
+\setlength{\logoboxwidth}{\sidebarproportion\textwidth}
 \newlength\sidebarwidth
 \newlength\sidebaroffset
-\if@uutop
+\if@uuposter@top
 	\setlength{\sidebarwidth}{0pt}
 	\setlength{\sidebaroffset}{0pt}
 \else
@@ -142,16 +150,44 @@
 	\setlength{\sidebaroffset}{\sidebarwidth}
 	\addtolength{\sidebaroffset}{\vcolumnsep}
 \fi
+
+\newlength\sigilwidth
+\if@uuposter@sigil@margin
+	\if@uuposter@top
+		\setlength{\sigilwidth}{\titleproportion\textheight}
+	\else
+		\setlength{\sigilwidth}{\sidebarwidth}
+	\fi
+\fi
+\if@uuposter@sigil@corner
+	\setlength{\sigilwidth}{\sigilproportion\textwidth}
+	\newlength\sigiloffsetx
+	\newlength\sigiloffsety
+	\if@uuposter@sigil@right
+		\setlength{\sigiloffsetx}{\textwidth}
+		\addtolength{\sigiloffsetx}{-\sigilwidth}
+	\else \if@uuposter@sigil@left
+		\setlength{\sigiloffsetx}{\sidebarwidth}
+	\fi \fi
+	\if@uuposter@sigil@bottom
+		\setlength{\sigiloffsety}{0pt}
+	\else \if@uuposter@sigil@top
+		\setlength{\sigiloffsety}{\textheight}
+		\addtolength{\sigiloffsety}{-\sigilwidth}
+	\fi \fi
+	\newstaticframe{\sigilwidth}{\sigilwidth}{\sigiloffsetx}{\sigiloffsety}[background]
+	\setstaticframe*{background}{valign=b}
+\fi
 \newlength\mainwidth
 \setlength{\mainwidth}{\textwidth}
 \addtolength{\mainwidth}{-\sidebaroffset}
-\Ncolumntopinarea{static}{\uucolumns}{12cm}{\mainwidth}{\textheight}{\sidebaroffset}{0pt}
-\if@uucornersigil
+\Ncolumntopinarea{static}{\uucolumns}{\titleproportion\textheight}{\mainwidth}{\textheight}{\sidebaroffset}{0pt}
+\if@uuposter@sigil@corner
 	\setstaticframe{2}{label={title}}
 \else
 	\setstaticframe{1}{label={title}}
 \fi
-\if@uuruled
+\if@uuposter@ruled
 	\insertvrule{flow}{1}{flow}{2}
 \fi
 
@@ -166,11 +202,11 @@
 %\newstaticframe{\ffareawidth}{5in}{\ffareax}{0in}[table]
 %\setstaticframe{2}{clear}
 \newstaticframe{\sidebarwidth}{\textheight}{0pt}{0pt}[sidebar]
-\if@uutop
+\newlength\authoroffset
+\if@uuposter@top
 	\setstaticframe*{title}{backcolor=uu@bg}
 	\getstaticbounds*{title}
 	\newstaticframe{\logoboxwidth}{\ffareaheight}{0pt}{\ffareay}[logobox]
-	\newlength\authoroffset
 	\setlength{\authoroffset}{\textwidth}
 	\addtolength{\authoroffset}{-\logoboxwidth}
 	\newstaticframe{\logoboxwidth}{\ffareaheight}{\authoroffset}{\ffareay}[authorbox]
@@ -178,17 +214,19 @@
 	\newstaticframe{\authoroffset}{\ffareaheight}{\logoboxwidth}{\ffareay}[titlebox]
 \else
 	\setstaticframe*{sidebar}{backcolor=uu@bg}
+	\if@uuposter@landscape
+		\setlength{\authoroffset}{3em}
+	\else
+		\setlength{\authoroffset}{6em}
+	\fi
 \fi
 \setallstaticframes{valign=t}
-%\setallflowframes{border=plain}
 
 \renewcommand\@maketitle{%
-  %\newpage
- % \null
   \raggedright%
   \let \footnote \thanks
     {% set colour and font for the title 
-    \if@uutop
+    \if@uuposter@top
     		\color{uu@fg}
 	\else
 		\color{uured}
@@ -218,7 +256,7 @@
 	\renewcommand{\thempfootnote}{\textcolor{uu@fg}{\Large{{\arabic{mpfootnote}}}}}
 	\color{uu@fg}\sffamily\LARGE
 	\uuposterauthor
-	\if@uutop
+	\if@uuposter@top
 		\vspace{0.5\baselineskip}
 	\else
 		\vspace{\baselineskip}
@@ -229,32 +267,19 @@
 \tolerance 5000
 
 \AtBeginDocument{%
-\if@uucornersigil
+\if@uuposter@sigil@corner
 	\begin{staticcontents*}{background}
 		\raggedleft
 		\includesigil
 	\end{staticcontents*}
 \fi
-\if@uutop
+\if@uuposter@top
 	\begin{staticcontents*}{titlebox}%
 		\maketitle%
 	\end{staticcontents*}
 	\begin{staticcontents*}{logobox}
 		\vspace{-\baselineskip}
-		%\begin{center}
-		\if@uulogovit
-			\includegraphics[width=0.9\logoboxwidth]{UU_logo_vit_84}\\
-		\fi
-		\if@uulogosv
-			\includegraphics[width=0.9\logoboxwidth]{UU_logo_sv_84}\\
-		\fi
-		\if@uulogotwo
-			\includegraphics[width=0.9\logoboxwidth]{UU_logo_2f_84}\\
-		\fi
-		\if@uulogofour
-			\includegraphics[width=0.9\logoboxwidth]{UU_logo_4f_84}\\
-		\fi
-		%\end{center}
+		\includelogo
 	\end{staticcontents*}
 	\begin{staticcontents*}{authorbox}
 		\makeuuposterauthor
@@ -265,22 +290,18 @@
 	\end{staticcontents*}
 	\begin{staticcontents*}{sidebar}
 	\begin{center}
-	\if@uulogovit
-		\includegraphics[width=0.9\logoboxwidth]{UU_logo_vit_84}\\
+	\includelogo
+	\if@uuposter@sigil@margin
+		\vfill
+	\else
+		\vskip \authoroffset
 	\fi
-	\if@uulogosv
-		\includegraphics[width=0.9\logoboxwidth]{UU_logo_sv_84}\\
-	\fi
-	\if@uulogotwo
-		\includegraphics[width=0.9\logoboxwidth]{UU_logo_2f_84}\\
-	\fi
-	\if@uulogofour
-		\includegraphics[width=0.9\logoboxwidth]{UU_logo_4f_84}\\
-	\fi
-	\hspace{0.05\logoboxwidth}
-	\vskip 6em
 	\makeuuposterauthor
 	\end{center}
+	\if@uuposter@sigil@margin
+		\vfill
+		\includesigil
+	\fi
 	\end{staticcontents*}
 \fi
 \large\uubodyfont}
