@@ -1,0 +1,64 @@
+\ProvidesPackage{UUxetex}
+\RequirePackage{xkeyval}
+\newif\if@uuxetex@sanserif
+\DeclareOptionX{sanserif}[Arial]{
+	\@uuxetex@sanseriftrue
+	\def \uuxetex@sanserif@font {#1}
+}
+\newif\if@uuxetex@serif
+\DeclareOptionX{serif}[Times]{
+	\@uuxetex@seriftrue
+	\def \uuxetex@serif@font {#1}
+}
+\newif\if@uuxetex@mathoverride
+\DeclareOptionX{math}[XITS Math]{
+	\@uuxetex@mathoverridetrue
+	\def \uuxetex@math@font {#1}
+}
+\newif\if@uuxetex@xits
+\@uuxetex@xitstrue
+\DeclareOptionX{noxits}{
+	\@uuxetex@xitsfalse
+}
+\newif\if@uuxetex@backups
+\DeclareOptionX{uubackupfonts}{
+	\@uuxetex@backupstrue
+}
+\ProcessOptionsX\relax
+
+\RequirePackage{xunicode} %Unicode extras!
+\RequirePackage{xltxtra}
+\RequirePackage{unicode-math}
+
+\if@uuxetex@mathoverride
+	\setmathfont{\uuxetex@math@font}
+\else
+	\if@uuxetex@xits
+		\setmathfont{XITS Math}
+		\setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math}
+	\fi
+\fi
+
+\defaultfontfeatures{Mapping=tex-text}
+\renewcommand{\nobreakspace}{\nobreak\ }
+
+\if@uuxetex@backups
+%%% Standard backup fonts for UU publications:
+	\setsansfont{Arial}
+	\setmainfont{Times New Roman}
+	\newfontinstance\uubodyfont{Times New Roman}
+\else
+	\if@uuxetex@sanserif
+		\setsansfont{\uuxetex@sanserif@font}
+	\else
+		\setsansfont{Gill Alt One MT}
+	\fi
+	
+	\if@uuxetex@serif
+		\setmainfont{\uuxetex@serif@font}
+		\newfontinstance\uubodyfont{\uuxetex@serif@font}
+	\else
+		\setmainfont[BoldFont={Berling Bold}, ItalicFont={Berling Italic}]{Berling Roman}
+		\newfontinstance\uubodyfont[BoldFont={Berling Bold},ItalicFont={Berling Italic}]{Berling Roman}
+	\fi
+\fi
