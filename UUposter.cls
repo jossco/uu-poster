@@ -2,6 +2,11 @@
 \ProvidesClass{UUposter}[2011/09/01 Class for making scientific posters in the style of Uppsala University]
 \RequirePackage{xkeyval}
 
+\newif\if@uuposter@xetex
+\newif\if@uuposter@times
+\@uuposter@timestrue
+\newif\if@uuposter@helvet
+\@uuposter@helvettrue
 \newif\if@uuposter@red
 \newif\if@uuposter@grey
 \newif\if@uuposter@top
@@ -14,6 +19,15 @@
 \newif\if@uuposter@sigil@top
 \newif\if@uuposter@sigil@bottom
 \newlength\logoboxwidth
+\DeclareOptionX{xetex}{
+	\@uuposter@xetextrue
+}
+\DeclareOptionX{notimes}{
+	\@uuposter@timefalse
+}
+\DeclareOptionX{nohelvet}{
+	\@uuposter@helvetfalse
+}
 \DeclareOptionX{red}{
 	\@uuposter@redtrue
 	\@uuposter@greyfalse	
@@ -108,10 +122,17 @@
 \fi
 \LoadClass{a0poster}
 
-\RequirePackage{mathtools}
-
-%%% Fonts with xetex and fontspec:
-\RequirePackage{UUxetex}
+\if@uuposter@xetex
+	\RequirePackage{mathtools}
+	\RequirePackage{UUxetex}
+\else
+	\if@uuposter@times
+		\RequirePackage{times}
+	\fi
+	\if@uuposter@helvet
+		\RequirePackage{helvet}
+	\fi
+\fi
 
 %%% Colors:
 \RequirePackage{xcolor}
@@ -304,5 +325,10 @@
 	\fi
 	\end{staticcontents*}
 \fi
-\large\uubodyfont}
+\if@uuposter@xetex
+	\large%\uubodyfont
+\else
+	\large
+\fi
+}
 \endinput

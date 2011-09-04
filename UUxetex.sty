@@ -16,9 +16,8 @@
 	\def \uuxetex@math@font {#1}
 }
 \newif\if@uuxetex@xits
-\@uuxetex@xitstrue
-\DeclareOptionX{noxits}{
-	\@uuxetex@xitsfalse
+\DeclareOptionX{xits}{
+	\@uuxetex@xitstrue
 }
 \newif\if@uuxetex@backups
 \DeclareOptionX{uubackupfonts}{
@@ -28,12 +27,13 @@
 
 \RequirePackage{xunicode} %Unicode extras!
 \RequirePackage{xltxtra}
-\RequirePackage{unicode-math}
 
 \if@uuxetex@mathoverride
+	\RequirePackage{unicode-math}
 	\setmathfont{\uuxetex@math@font}
 \else
 	\if@uuxetex@xits
+		\RequirePackage{unicode-math}
 		\setmathfont{XITS Math}
 		\setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math}
 	\fi
