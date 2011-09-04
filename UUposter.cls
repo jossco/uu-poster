@@ -1,5 +1,5 @@
 %\NeedsTexFormat{LaTeX2e}
-\ProvidesClass{UUposter}[2011/09/01 Class for making scientific posters in the style of Uppsala University]
+\ProvidesClass{UUposter}[2011/09/04 v0.2b Class for making scientific posters in the style of Uppsala University]
 \RequirePackage{xkeyval}
 
 \newif\if@uuposter@xetex
@@ -7,6 +7,8 @@
 \@uuposter@timestrue
 \newif\if@uuposter@helvet
 \@uuposter@helvettrue
+\newif\if@uuposter@mathtools
+\@uuposter@mathtoolstrue
 \newif\if@uuposter@red
 \newif\if@uuposter@grey
 \newif\if@uuposter@top
@@ -27,6 +29,12 @@
 }
 \DeclareOptionX{nohelvet}{
 	\@uuposter@helvetfalse
+}
+\DeclareOptionX{nomathtools}{
+	\@uuposter@mathtoolsfalse
+}
+\DeclareOptionX{mathtools}[]{
+	\PassOptionsToPackage{mathtools}{#1}
 }
 \DeclareOptionX{red}{
 	\@uuposter@redtrue
@@ -122,8 +130,11 @@
 \fi
 \LoadClass{a0poster}
 
-\if@uuposter@xetex
+\if@uuposter@mathtools
 	\RequirePackage{mathtools}
+\fi
+
+\if@uuposter@xetex
 	\RequirePackage{UUxetex}
 \else
 	\if@uuposter@times
