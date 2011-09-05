@@ -58,7 +58,7 @@
 	\ExecuteOptionsX{sidebarwidth=0.20,columns=2}
 	\@uuposter@landscapefalse
 }
-\DeclareOptionX{columns}[2]{\def \uucolumns {#1}}
+\DeclareOptionX{columns}[2]{\def \uuposter@columns {#1}}
 \DeclareOptionX{ruled}{\@uuposter@ruledtrue}
 
 \DeclareOptionX{logo}[4f]{\def\uuposter@LogoInclude{\includegraphics[width=\logoboxwidth]{UU_logo_#1_84}}}
@@ -172,6 +172,22 @@
 
 \RequirePackage{graphicx}
 
+%% Yes, I know this is available as a package, but add a whole dependency just for this? Really?
+%%% FOR LOOP CODE
+\RequirePackage{ifthen}
+\newcommand{\forloop}[5][1]{%
+\setcounter{#4}{#2} %
+\ifthenelse{ \value{#4}<#3 }%
+{%
+#5 %
+\addtocounter{#4}{#1} %
+\forloop[#1]{\value{#4}}{#3}{#4}{#5} %
+}{%
+#5 %
+}}%
+%% END FOR LOOP CODE
+
+
 %%% flowfram is used to control the poster layout:
 \RequirePackage{flowfram}
 \setlength{\vcolumnsep}{2\baselineskip}
@@ -223,14 +239,20 @@
 \newlength\mainwidth
 \setlength{\mainwidth}{\textwidth}
 \addtolength{\mainwidth}{-\sidebaroffset}
-\Ncolumntopinarea{static}{\uucolumns}{\uuposter@TitleHeight}{\mainwidth}{\textheight}{\sidebaroffset}{0pt}
+\Ncolumntopinarea{static}{\uuposter@columns}{\uuposter@TitleHeight}{\mainwidth}{\textheight}{\sidebaroffset}{0pt}
 \if@uuposter@sigil@corner
 	\setstaticframe{2}{label={title}}
 \else
 	\setstaticframe{1}{label={title}}
 \fi
 \if@uuposter@ruled
-	\insertvrule{flow}{1}{flow}{2}
+	\newcounter{firstcol}
+	\setcounter{firstcol}{1}
+	\newcounter{secondcol}
+	\forloop{2}{\uuposter@columns}{secondcol}{%
+		\insertvrule{flow}{\thefirstcol}{flow}{\thesecondcol}
+		\addtocounter{firstcol}{1}
+	}
 \fi
 
 %\newlength\offset
@@ -342,9 +364,9 @@
 
 %%% University Logo:
 \newcommand\uuposterBeforeLogo{%
-	\if@uuposter@top
-		\vspace{-\baselineskip}%
-	\fi%
+%	\if@uuposter@top
+%		\vspace{-\baselineskip}%
+%	\fi%
 }
 \newcommand\uuposterLogoContent{\uuposter@LogoInclude}
 \newcommand\uuposterAfterLogo{}
