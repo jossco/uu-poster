@@ -21,6 +21,9 @@
 \newif\if@uuposter@sigil@top
 \newif\if@uuposter@sigil@bottom
 \newlength\logoboxwidth
+\newlength\uuposter@TitleHeight
+\newif\if@uuposter@TitleHeightSet
+%% Use fontspec to load the Uppsala University fonts (Berling and Gill Alt One MT). These fonts, available from the Communication and Graphics Office, must be properly installed on your computer. (Also, the Mac fonts supplied by the university are in an old enough format that fontspec can't load them. Mac users can get around this by downloading and installing the TrueType fonts that are included in the PC font package.) This option is required because loading fontspec after flowfram messes up the alignment of the poster columns.
 \DeclareOptionX{xetex}{
 	\@uuposter@xetextrue
 }
@@ -48,23 +51,23 @@
 }
 \DeclareOptionX{top}{\@uuposter@toptrue}
 \DeclareOptionX{landscape}{
-	\ExecuteOptionsX{sidebarwidth=0.15,titleheight=0.075,columns=3}
+	\ExecuteOptionsX{sidebarwidth=0.1,columns=3}
 	\@uuposter@landscapetrue
 }
 \DeclareOptionX{portrait}{
-	\ExecuteOptionsX{sidebarwidth=0.20,titleheight=0.1,columns=2}
+	\ExecuteOptionsX{sidebarwidth=0.20,columns=2}
 	\@uuposter@landscapefalse
 }
 \DeclareOptionX{columns}[2]{\def \uucolumns {#1}}
 \DeclareOptionX{ruled}{\@uuposter@ruledtrue}
 
-\DeclareOptionX{logo}[4f]{\def\includelogo{\includegraphics[width=\logoboxwidth]{UU_logo_#1_84}}}
+\DeclareOptionX{logo}[4f]{\def\uuposter@LogoInclude{\includegraphics[width=\logoboxwidth]{UU_logo_#1_84}}}
 
-\newcommand{\includesigil}{
+\newcommand{\uuposterSigil}{
 }
 \define@choicekey+{UUposter.cls}{sigil}[\val\nr]{NW,NE,SW,SE,margin}[SE]{
 	\ifcase\nr\relax
-		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SO_10Svart}}
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SO_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@toptrue
@@ -72,7 +75,7 @@
 		\@uuposter@sigil@bottomfalse
 		\@uuposter@sigil@rightfalse
 	\or 
-		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SV_10Svart}}
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SV_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@toptrue
@@ -80,7 +83,7 @@
 		\@uuposter@sigil@bottomfalse
 		\@uuposter@sigil@leftfalse
 	\or
-		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NO_10Svart}}
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NO_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@bottomtrue
@@ -88,7 +91,7 @@
 		\@uuposter@sigil@topfalse
 		\@uuposter@sigil@rightfalse
 	\or
-		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NV_10Svart}}
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NV_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@bottomtrue
@@ -98,7 +101,7 @@
 	\or
 		\@uuposter@sigil@margintrue
 		\@uuposter@sigil@cornerfalse
-		\renewcommand{\includesigil}{\includegraphics[width=\sigilwidth]{UU_marginalsigill_5Svart}}
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_marginalsigill_5Svart}}
 	\fi
 }{%
 	\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}
@@ -109,8 +112,9 @@
 \DeclareOptionX{sidebarwidth}[0.2]{
 	\def\sidebarproportion{#1}
 }
-\DeclareOptionX{titleheight}[0.1]{
-	\def\titleproportion{#1}
+\DeclareOptionX{titleheight}[6em]{
+	\@uuposter@TitleHeightSettrue
+	\setlength\uuposter@TitleHeight{#1}
 }
 %%Pass xetex font options off to UUxetex.sty:
 \DeclareOptionX{math}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
@@ -130,6 +134,8 @@
 \fi
 \LoadClass{a0poster}
 
+\RequirePackage{epstopdf}
+
 \if@uuposter@mathtools
 	\RequirePackage{mathtools}
 \fi
@@ -147,18 +153,19 @@
 
 %%% Colors:
 \RequirePackage{xcolor}
-\definecolor{uured}{RGB}{153,0,0}
-\definecolor{uulightgrey}{RGB}{230,230,230}
-\definecolor{uumidgrey}{RGB}{190,190,190}
-\definecolor{uudarkgrey}{RGB}{130,130,130}
+%%%% From UU beamer theme:
+\definecolor{uuposterred}{RGB}{153,0,0}
+\definecolor{uuposterlightgrey}{RGB}{230,230,230}
+\definecolor{uupostermidgrey}{RGB}{190,190,190}
+\definecolor{uuposterdarkgrey}{RGB}{130,130,130}
 
 \if@uuposter@red
-	\definecolor{uu@bg}{named}{uured}
-	\definecolor{uu@fg}{named}{white}
+	\definecolor{uuposter@bg}{named}{uuposterred}
+	\definecolor{uuposter@fg}{named}{white}
 \else
 	\if@uuposter@grey
-		\definecolor{uu@bg}{named}{uulightgrey}
-		\definecolor{uu@fg}{named}{black}
+		\definecolor{uuposter@bg}{named}{uuposterlightgrey}
+		\definecolor{uuposter@fg}{named}{black}
 	\fi
 \fi
 %%% To fix footnotes in the sidebar minipage:
@@ -174,6 +181,11 @@
 \setlength{\logoboxwidth}{\sidebarproportion\textwidth}
 \newlength\sidebarwidth
 \newlength\sidebaroffset
+\if@uuposter@TitleHeightSet
+\else
+	\setlength\uuposter@TitleHeight{\logoboxwidth}
+	\@uuposter@TitleHeightSettrue
+\fi
 \if@uuposter@top
 	\setlength{\sidebarwidth}{0pt}
 	\setlength{\sidebaroffset}{0pt}
@@ -186,7 +198,7 @@
 \newlength\sigilwidth
 \if@uuposter@sigil@margin
 	\if@uuposter@top
-		\setlength{\sigilwidth}{\titleproportion\textheight}
+		\setlength{\sigilwidth}{\uuposter@TitleHeight}
 	\else
 		\setlength{\sigilwidth}{\sidebarwidth}
 	\fi
@@ -213,7 +225,7 @@
 \newlength\mainwidth
 \setlength{\mainwidth}{\textwidth}
 \addtolength{\mainwidth}{-\sidebaroffset}
-\Ncolumntopinarea{static}{\uucolumns}{\titleproportion\textheight}{\mainwidth}{\textheight}{\sidebaroffset}{0pt}
+\Ncolumntopinarea{static}{\uucolumns}{\uuposter@TitleHeight}{\mainwidth}{\textheight}{\sidebaroffset}{0pt}
 \if@uuposter@sigil@corner
 	\setstaticframe{2}{label={title}}
 \else
@@ -236,7 +248,7 @@
 \newstaticframe{\sidebarwidth}{\textheight}{0pt}{0pt}[sidebar]
 \newlength\authoroffset
 \if@uuposter@top
-	\setstaticframe*{title}{backcolor=uu@bg}
+	\setstaticframe*{title}{backcolor=uuposter@bg}
 	\getstaticbounds*{title}
 	\newstaticframe{\logoboxwidth}{\ffareaheight}{0pt}{\ffareay}[logobox]
 	\setlength{\authoroffset}{\textwidth}
@@ -245,7 +257,7 @@
 	\addtolength{\authoroffset}{-\logoboxwidth}
 	\newstaticframe{\authoroffset}{\ffareaheight}{\logoboxwidth}{\ffareay}[titlebox]
 \else
-	\setstaticframe*{sidebar}{backcolor=uu@bg}
+	\setstaticframe*{sidebar}{backcolor=uuposter@bg}
 	\if@uuposter@landscape
 		\setlength{\authoroffset}{3em}
 	\else
@@ -254,47 +266,113 @@
 \fi
 \setallstaticframes{valign=t}
 
+%% Title Bar:
+\newcommand\uuposterTitleTextColor{%
+	\if@uuposter@top
+		\color{uuposter@fg}%
+	\else
+		\color{uuposterred}%
+	\fi%
+}
+\newcommand\uuposterTitleTextStyle{%
+	\sffamily\bfseries\veryHuge%
+}
 \renewcommand\@maketitle{%
   \raggedright%
   \let \footnote \thanks
     {% set colour and font for the title 
-    \if@uuposter@top
-    		\color{uu@fg}
-	\else
-		\color{uured}
-	\fi
-	\sffamily\bfseries\veryHuge
+    \uuposterTitleTextColor%
+	\uuposterTitleTextStyle%
     \@title \par}%
   \par
   }
-
-\renewcommand\section{%
-\@startsection{section}{1}{\z@}%
-              {-3.5ex \@plus -1ex \@minus -.2ex}%
-              {2.3ex \@plus.2ex}%
-              {\color{black}\sffamily\Huge}}
-\renewcommand\subsection{%
-\@startsection{subsection}{2}{\z@}%
-              {-3.25ex\@plus -1ex \@minus -.2ex}%
-              {1.5ex \@plus .2ex}%
-              {\color{black}\sffamily\huge}}
-\newcommand{\Inst}[1]{%
-\color{uu@fg}\large{\sffamily{#1}}
+\newcommand\uuposterBeforeTitle{}
+\newcommand\uuposterTitleContent{\maketitle}
+\newcommand\uuposterAfterTitle{}
+\newcommand\uuposterTitle{%
+	\uuposterBeforeTitle%
+	\uuposterTitleContent%
+	\uuposterAfterTitle}
+	
+%%% Author Block:
+%% Override this to set the author content in the document:
+\newcommand\uuposterAuthor{}
+\newcommand{\uuposterAuthorBlock}{%
+	\uuposterBeforeAuthor%
+	\uuposterAuthorContent%
+	\uuposterAfterAuthor%
 }
-\newcommand{\uuposterauthor}{%
-}
-\newcommand{\makeuuposterauthor}{%
-\begin{minipage}{0.9\logoboxwidth}
-	\renewcommand{\thempfootnote}{\textcolor{uu@fg}{\Large{{\arabic{mpfootnote}}}}}
-	\color{uu@fg}\sffamily\LARGE
-	\uuposterauthor
+\newcommand\uuposterAuthorFootSkip{%
 	\if@uuposter@top
 		\vspace{0.5\baselineskip}
 	\else
 		\vspace{\baselineskip}
-	\fi
-	\end{minipage}
+	\fi%
 }
+\newlength\uuposterAuthorOffset
+\if@uuposter@top
+	\setlength{\uuposterAuthorOffset}{0pt}
+\else
+	\if@uuposter@landscape
+		\setlength{\uuposterAuthorOffset}{3em}
+	\else
+		\setlength{\uuposterAuthorOffset}{6em}
+	\fi
+\fi
+\newcommand\uuposterBeforeAuthor{%
+	\if@uuposter@sigil@margin
+		\vfill
+	\else
+		\vskip \uuposterAuthorOffset
+	\fi%
+}
+\newcommand\uuposterAuthorTextColor{\color{uuposter@fg}}
+\newcommand\uuposterAuthorTextStyle{\sffamily\LARGE}
+\newcommand\uuposterAuthorContent{%
+	\begin{minipage}{0.9\logoboxwidth}
+		\renewcommand{\thempfootnote}{\textcolor{uuposter@fg}{\Large{{\arabic{mpfootnote}}}}}
+		\uuposterAuthorTextColor\uuposterAuthorTextStyle\uuposterAuthor
+		\uuposterAuthorFootSkip
+	\end{minipage}%
+}
+\newcommand\uuposterAfterAuthor{}
+\newcommand\uuposterInstTextStyle{\large\sffamily}
+\newcommand\uuposterInstTextColor{\uuposterAuthorTextColor}
+\newcommand{\uuposterInst}[1]{%
+	\footnote{\uuposterInstTextColor\uuposterInstTextStyle{#1}}%
+}
+
+%%% University Logo:
+\newcommand\uuposterBeforeLogo{%
+	\if@uuposter@top
+		\vspace{-\baselineskip}%
+	\fi%
+}
+\newcommand\uuposterLogoContent{\uuposter@LogoInclude}
+\newcommand\uuposterAfterLogo{}
+\newcommand\uuposterLogo{%
+	\uuposterBeforeLogo%
+	\uuposterLogoContent%
+	\uuposterAfterLogo%
+}
+
+%%% Sectioning commands:
+\newcommand\uuposterSectionTextColor{\color{black}}
+\newcommand\uuposterSectionTextStyle{\sffamily\Huge}
+\newcommand\uuposterSubSectionTextColor{\uuposterSectionTextColor}
+\newcommand\uuposterSubSectionTextStyle{\sffamily\huge}
+\renewcommand\section{%
+\@startsection{section}{1}{\z@}%
+              {-3.5ex \@plus -1ex \@minus -.2ex}%
+              {2.3ex \@plus.2ex}%
+              {\uuposterSectionTextColor\uuposterSectionTextStyle}}
+\renewcommand\subsection{%
+\@startsection{subsection}{2}{\z@}%
+              {-3.25ex\@plus -1ex \@minus -.2ex}%
+              {1.5ex \@plus .2ex}%
+              {\uuposterSubSectionTextColor\uuposterSubSectionTextStyle}}
+              
+              
 \hyphenpenalty 10000
 \tolerance 5000
 
@@ -302,37 +380,31 @@
 \if@uuposter@sigil@corner
 	\begin{staticcontents*}{background}
 		\raggedleft
-		\includesigil
+		\uuposterSigil
 	\end{staticcontents*}
 \fi
 \if@uuposter@top
 	\begin{staticcontents*}{titlebox}%
-		\maketitle%
+		\uuposterTitle%
 	\end{staticcontents*}
 	\begin{staticcontents*}{logobox}
-		\vspace{-\baselineskip}
-		\includelogo
+		\uuposterLogo
 	\end{staticcontents*}
 	\begin{staticcontents*}{authorbox}
-		\makeuuposterauthor
+		\uuposterAuthorBlock
 	\end{staticcontents*}
 \else
 	\begin{staticcontents*}{title}%
-		\maketitle%
+		\uuposterTitle%
 	\end{staticcontents*}
 	\begin{staticcontents*}{sidebar}
 	\begin{center}
-	\includelogo
-	\if@uuposter@sigil@margin
-		\vfill
-	\else
-		\vskip \authoroffset
-	\fi
-	\makeuuposterauthor
+	\uuposterLogo
+	\uuposterAuthorBlock
 	\end{center}
 	\if@uuposter@sigil@margin
 		\vfill
-		\includesigil
+		\uuposterSigil
 	\fi
 	\end{staticcontents*}
 \fi
