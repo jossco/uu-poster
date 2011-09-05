@@ -134,8 +134,6 @@
 \fi
 \LoadClass{a0poster}
 
-\RequirePackage{epstopdf}
-
 \if@uuposter@mathtools
 	\RequirePackage{mathtools}
 \fi
@@ -372,7 +370,8 @@
               {1.5ex \@plus .2ex}%
               {\uuposterSubSectionTextColor\uuposterSubSectionTextStyle}}
               
-              
+\newcommand\uuposterBodyTextStyle{\large}
+\newcommand\uuposterBodyTextColor{\color{black}}        
 \hyphenpenalty 10000
 \tolerance 5000
 
@@ -408,10 +407,6 @@
 	\fi
 	\end{staticcontents*}
 \fi
-\if@uuposter@xetex
-	\large%\uubodyfont
-\else
-	\large
-\fi
+\uuposterBodyTextColor\uuposterBodyTextStyle%
 }
 \endinput
