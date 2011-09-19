@@ -23,6 +23,10 @@
 \DeclareOptionX{uubackupfonts}{
 	\@uuxetex@backupstrue
 }
+\newif\if@uuxetex@beamer
+\DeclareOptionX{beamer}{
+	\@uuxetex@beamertrue
+}
 \ProcessOptionsX\relax
 
 \RequirePackage{xunicode} %Unicode extras!
@@ -51,7 +55,11 @@
 	\if@uuxetex@sanserif
 		\setsansfont{\uuxetex@sanserif@font}
 	\else
-		\setsansfont{Gill Alt One MT}
+		\if@uuxetex@beamer
+			\setsansfont{Gill Sans}
+		\else
+			\setsansfont{Gill Alt One MT}
+		\fi
 	\fi
 	
 	\if@uuxetex@serif

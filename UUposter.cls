@@ -192,19 +192,27 @@
 \RequirePackage{flowfram}
 \setlength{\vcolumnsep}{2\baselineskip}
 \setlength{\columnsep}{2\baselineskip}
-\setlength{\logoboxwidth}{\sidebarproportion\textwidth}
 \newlength\sidebarwidth
 \newlength\sidebaroffset
+\setlength{\sidebarwidth}{\sidebarproportion\textwidth}
+\setlength{\logoboxwidth}{\sidebarwidth}
+\addtolength{\logoboxwidth}{-\vcolumnsep}
+\newlength\logoboxoffset
+\setlength{\logoboxoffset}{\vcolumnsep}
 \if@uuposter@TitleHeightSet
+	\if@uuposter@top
+		\setlength{\logoboxwidth}{\uuposter@TitleHeight}
+		\addtolength{\logoboxwidth}{-\vcolumnsep}
+	\fi
 \else
 	\setlength\uuposter@TitleHeight{\logoboxwidth}
+	\addtolength{\uuposter@TitleHeight}{-2\logoboxoffset}
 	\@uuposter@TitleHeightSettrue
 \fi
 \if@uuposter@top
 	\setlength{\sidebarwidth}{0pt}
 	\setlength{\sidebaroffset}{0pt}
 \else
-	\setlength{\sidebarwidth}{\logoboxwidth}
 	\setlength{\sidebaroffset}{\sidebarwidth}
 	\addtolength{\sidebaroffset}{\vcolumnsep}
 \fi
@@ -255,16 +263,10 @@
 	}
 \fi
 
-%\newlength\offset
-%\setlength{\offset}{5in}
-%\addtolength{\offset}{\vcolumnsep}
-%\computeflowframearea{2,3}
-%\addtolength{\ffareaheight}{-\offset}
-%
-%\setflowframe{2,3}{y=\offset,height=\ffareaheight}
-%
-%\newstaticframe{\ffareawidth}{5in}{\ffareax}{0in}[table]
-%\setstaticframe{2}{clear}
+\newlength\uupostercolwidth
+\getflowbounds{1}
+\setlength{\uupostercolwidth}{\ffareawidth}
+
 \newstaticframe{\sidebarwidth}{\textheight}{0pt}{0pt}[sidebar]
 \newlength\authoroffset
 \if@uuposter@top
@@ -347,7 +349,7 @@
 	\fi%
 }
 \newcommand\uuposterAuthorTextColor{\color{uuposter@fg}}
-\newcommand\uuposterAuthorTextStyle{\sffamily\LARGE}
+\newcommand\uuposterAuthorTextStyle{\sffamily\Large}
 \newcommand\uuposterAuthorContent{%
 	\begin{minipage}{0.9\logoboxwidth}
 		\renewcommand{\thempfootnote}{\textcolor{uuposter@fg}{\Large{{\arabic{mpfootnote}}}}}
@@ -364,9 +366,7 @@
 
 %%% University Logo:
 \newcommand\uuposterBeforeLogo{%
-%	\if@uuposter@top
-%		\vspace{-\baselineskip}%
-%	\fi%
+	\vspace{\logoboxoffset}
 }
 \newcommand\uuposterLogoContent{\uuposter@LogoInclude}
 \newcommand\uuposterAfterLogo{}
@@ -383,19 +383,21 @@
 \newcommand\uuposterSubSectionTextStyle{\sffamily\huge}
 \renewcommand\section{%
 \@startsection{section}{1}{\z@}%
-              {-3.5ex \@plus -1ex \@minus -.2ex}%
+              {-3ex \@plus -1ex \@minus -.2ex}%
               {2.3ex \@plus.2ex}%
               {\uuposterSectionTextColor\uuposterSectionTextStyle}}
 \renewcommand\subsection{%
 \@startsection{subsection}{2}{\z@}%
-              {-3.25ex\@plus -1ex \@minus -.2ex}%
-              {1.5ex \@plus .2ex}%
+              {-2.25ex\@plus -1ex \@minus -.2ex}%
+              {1ex \@plus .2ex}%
               {\uuposterSubSectionTextColor\uuposterSubSectionTextStyle}}
-              
-\newcommand\uuposterBodyTextStyle{\large}
+\newcommand\uuposterBodyTextStyle{\normalsize}
 \newcommand\uuposterBodyTextColor{\color{black}}        
 \hyphenpenalty 10000
 \tolerance 5000
+
+
+
 
 \AtBeginDocument{%
 \if@uuposter@sigil@corner
