@@ -1,0 +1,582 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2011 by Joseph Scott <joseph.scott@it.uu.se>
+% -------------------------------------------------------
+% 
+% This file may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.2
+% of this license or (at your option) any later version.
+% The latest version of this license is in:
+%
+%    http://www.latex-project.org/lppl.txt
+%
+% and version 1.2 or later is part of all distributions of LaTeX 
+% version 1999/12/01 or later.
+%
+% \fi
+%
+% \iffalse
+%<*driver>
+\ProvidesFile{UUposter.dtx}
+%</driver>
+%<class>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+%<class>\ProvidesClass{UUposter}
+%<*class>
+    [2011/09/19 v0.4b Class for making scientific posters in the style of Uppsala University]
+%</class>
+%
+%<*driver>
+\documentclass{ltxdoc}
+\EnableCrossrefs         
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{UUposter.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{0}
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+%
+% \changes{0.1b}{2011-09-03}{Initial Version}
+% \changes{0.2b}{2011-09-04}{xetex driver optional, changed image files}
+% \changes{0.3b}{2011-09-05}{Ruled option now supports variable number of columns}
+% \changes{0.4b}{2011-09-19}{fixed header height calculation in landscape mode}
+%
+% \GetFileInfo{UUposter.dtx}
+%
+% \DoNotIndex{\newcommand,\newenvironment}
+% \DoNotIndex{\#,\$,\%,\&,\@,\\,\{,\},\^,\_,\~,\ }
+% \DoNotIndex{\@ne}
+% \DoNotIndex{\advance,\begingroup,\catcode,\closein}
+% \DoNotIndex{\closeout,\day,\def,\edef,\else,\empty,\endgroup}
+% 
+%
+% \title{The \textsf{UUposter} class\thanks{This document
+%   corresponds to \textsf{UUposter}~\fileversion, dated \filedate.}}
+% \author{Joseph Scott \\ \texttt{joseph.scott@it.uu.se}}
+%
+% \maketitle
+%
+% \section{Introduction}
+%
+% Put text here.
+%
+% \section{Usage}
+%
+% Put text here.
+%
+% \DescribeMacro{\dummyMacro}
+% This macro does nothing.\index{doing nothing|usage} It is merely an
+% example.  If this were a real macro, you would put a paragraph here
+% describing what the macro is supposed to do, what its mandatory and
+% optional arguments are, and so forth.
+%
+% \DescribeEnv{dummyEnv}
+% This environment does nothing.  It is merely an example.
+% If this were a real environment, you would put a paragraph here
+% describing what the environment is supposed to do, what its
+% mandatory and optional arguments are, and so forth.
+%
+% \StopEventually{\PrintChanges\PrintIndex}
+%
+% \section{Implementation}
+%
+% For simplicity, we'll derive everything from the standard |article|
+% class.
+%    \begin{macrocode}
+\RequirePackage{xkeyval}
+
+\newif\if@uuposter@xetex
+\newif\if@uuposter@times
+\@uuposter@timestrue
+\newif\if@uuposter@helvet
+\@uuposter@helvettrue
+\newif\if@uuposter@mathtools
+\@uuposter@mathtoolstrue
+\newif\if@uuposter@red
+\newif\if@uuposter@grey
+\newif\if@uuposter@top
+\newif\if@uuposter@landscape
+\newif\if@uuposter@ruled
+\newif\if@uuposter@sigil@corner
+\newif\if@uuposter@sigil@margin
+\newif\if@uuposter@sigil@left
+\newif\if@uuposter@sigil@right
+\newif\if@uuposter@sigil@top
+\newif\if@uuposter@sigil@bottom
+\newlength\logoboxwidth
+\newlength\uuposter@TitleHeight
+\newif\if@uuposter@TitleHeightSet
+\DeclareOptionX{xetex}{
+	\@uuposter@xetextrue
+}
+\DeclareOptionX{notimes}{
+	\@uuposter@timefalse
+}
+\DeclareOptionX{nohelvet}{
+	\@uuposter@helvetfalse
+}
+\DeclareOptionX{nomathtools}{
+	\@uuposter@mathtoolsfalse
+}
+\DeclareOptionX{mathtools}[]{
+	\PassOptionsToPackage{mathtools}{#1}
+}
+\DeclareOptionX{red}{
+	\@uuposter@redtrue
+	\@uuposter@greyfalse	
+	\ExecuteOptionsX{logo=vit}
+}
+\DeclareOptionX{grey}{
+	\@uuposter@redfalse
+	\@uuposter@greytrue
+	\ExecuteOptionsX{logo=4f}
+}
+\DeclareOptionX{top}{\@uuposter@toptrue}
+\DeclareOptionX{landscape}{
+	\ExecuteOptionsX{sidebarwidth=0.1,columns=3}
+	\@uuposter@landscapetrue
+}
+\DeclareOptionX{portrait}{
+	\ExecuteOptionsX{sidebarwidth=0.20,columns=2}
+	\@uuposter@landscapefalse
+}
+\DeclareOptionX{columns}[2]{\def \uuposter@columns {#1}}
+\DeclareOptionX{ruled}{\@uuposter@ruledtrue}
+
+\DeclareOptionX{logo}[4f]{\def\uuposter@LogoInclude{\includegraphics[width=\logoboxwidth]{UU_logo_#1_84}}}
+
+\newcommand{\uuposterSigil}{
+}
+\define@choicekey+{UUposter.cls}{sigil}[\val\nr]{NW,NE,SW,SE,margin}[SE]{
+	\ifcase\nr\relax
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SO_10Svart}}
+		\@uuposter@sigil@cornertrue
+		\@uuposter@sigil@marginfalse
+		\@uuposter@sigil@toptrue
+		\@uuposter@sigil@lefttrue
+		\@uuposter@sigil@bottomfalse
+		\@uuposter@sigil@rightfalse
+	\or 
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SV_10Svart}}
+		\@uuposter@sigil@cornertrue
+		\@uuposter@sigil@marginfalse
+		\@uuposter@sigil@toptrue
+		\@uuposter@sigil@righttrue
+		\@uuposter@sigil@bottomfalse
+		\@uuposter@sigil@leftfalse
+	\or
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NO_10Svart}}
+		\@uuposter@sigil@cornertrue
+		\@uuposter@sigil@marginfalse
+		\@uuposter@sigil@bottomtrue
+		\@uuposter@sigil@lefttrue
+		\@uuposter@sigil@topfalse
+		\@uuposter@sigil@rightfalse
+	\or
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NV_10Svart}}
+		\@uuposter@sigil@cornertrue
+		\@uuposter@sigil@marginfalse
+		\@uuposter@sigil@bottomtrue
+		\@uuposter@sigil@righttrue
+		\@uuposter@sigil@topfalse
+		\@uuposter@sigil@leftfalse
+	\or
+		\@uuposter@sigil@margintrue
+		\@uuposter@sigil@cornerfalse
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_marginalsigill_5Svart}}
+	\fi
+}{%
+	\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}
+}
+\DeclareOptionX{sigilwidth}[0.5]{
+	\def\sigilproportion{#1}
+}
+\DeclareOptionX{sidebarwidth}[0.2]{
+	\def\sidebarproportion{#1}
+}
+\DeclareOptionX{titleheight}[6em]{
+	\@uuposter@TitleHeightSettrue
+	\setlength\uuposter@TitleHeight{#1}
+}
+
+\DeclareOptionX{math}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
+\DeclareOptionX{noxits}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
+\DeclareOptionX{serif}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
+\DeclareOptionX{sanserif}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
+	
+
+\DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{a0poster}}
+\ExecuteOptionsX{grey,sigilwidth,portrait}
+\ProcessOptionsX\relax
+
+\if@uuposter@landscape
+	\PassOptionsToClass{landscape}{a0poster}
+\else
+	\PassOptionsToClass{portrait}{a0poster}
+\fi
+\LoadClass{a0poster}
+
+\if@uuposter@mathtools
+	\RequirePackage{mathtools}
+\fi
+
+\if@uuposter@xetex
+	\RequirePackage{UUxetex}
+\else
+	\if@uuposter@times
+		\RequirePackage{times}
+	\fi
+	\if@uuposter@helvet
+		\RequirePackage{helvet}
+	\fi
+\fi
+
+\RequirePackage{xcolor}
+\definecolor{uuposterred}{RGB}{153,0,0}
+\definecolor{uuposterlightgrey}{RGB}{230,230,230}
+\definecolor{uupostermidgrey}{RGB}{190,190,190}
+\definecolor{uuposterdarkgrey}{RGB}{130,130,130}
+
+\if@uuposter@red
+	\definecolor{uuposter@bg}{named}{uuposterred}
+	\definecolor{uuposter@fg}{named}{white}
+\else
+	\if@uuposter@grey
+		\definecolor{uuposter@bg}{named}{uuposterlightgrey}
+		\definecolor{uuposter@fg}{named}{black}
+	\fi
+\fi
+%    \end{macrocode}
+% The footmisc package is used to fix footnotes in the sidebar minipage:
+%    \begin{macrocode}
+\RequirePackage[hang,norule,multiple]{footmisc}
+\setlength{\footnotemargin}{2em}
+
+\RequirePackage{graphicx}
+%    \end{macrocode}
+% Using the forloop package just for this seems ridiculous, so I don't:
+%    \begin{macrocode}
+\RequirePackage{ifthen}
+\newcommand{\forloop}[5][1]{%
+\setcounter{#4}{#2} %
+\ifthenelse{ \value{#4}<#3 }%
+{%
+#5 %
+\addtocounter{#4}{#1} %
+\forloop[#1]{\value{#4}}{#3}{#4}{#5} %
+}{%
+#5 %
+}}%
+
+%    \end{macrocode}
+% flowfram is used to control the poster layout:
+%    \begin{macrocode}
+\RequirePackage{flowfram}
+\setlength{\vcolumnsep}{2\baselineskip}
+\setlength{\columnsep}{2\baselineskip}
+\newlength\sidebarwidth
+\newlength\sidebaroffset
+\setlength{\sidebarwidth}{\sidebarproportion\textwidth}
+\setlength{\logoboxwidth}{\sidebarwidth}
+\addtolength{\logoboxwidth}{-\vcolumnsep}
+\newlength\logoboxoffset
+\setlength{\logoboxoffset}{\vcolumnsep}
+\if@uuposter@TitleHeightSet
+	\if@uuposter@top
+		\setlength{\logoboxwidth}{\uuposter@TitleHeight}
+		\addtolength{\logoboxwidth}{-\vcolumnsep}
+	\fi
+\else
+	\setlength\uuposter@TitleHeight{\logoboxwidth}
+	\addtolength{\uuposter@TitleHeight}{-2\logoboxoffset}
+	\@uuposter@TitleHeightSettrue
+\fi
+\if@uuposter@top
+	\setlength{\sidebarwidth}{0pt}
+	\setlength{\sidebaroffset}{0pt}
+\else
+	\setlength{\sidebaroffset}{\sidebarwidth}
+	\addtolength{\sidebaroffset}{\vcolumnsep}
+\fi
+
+\newlength\sigilwidth
+\if@uuposter@sigil@margin
+	\if@uuposter@top
+		\setlength{\sigilwidth}{\uuposter@TitleHeight}
+	\else
+		\setlength{\sigilwidth}{\sidebarwidth}
+	\fi
+\fi
+\if@uuposter@sigil@corner
+	\setlength{\sigilwidth}{\sigilproportion\textwidth}
+	\newlength\sigiloffsetx
+	\newlength\sigiloffsety
+	\if@uuposter@sigil@right
+		\setlength{\sigiloffsetx}{\textwidth}
+		\addtolength{\sigiloffsetx}{-\sigilwidth}
+	\else \if@uuposter@sigil@left
+		\setlength{\sigiloffsetx}{\sidebarwidth}
+	\fi \fi
+	\if@uuposter@sigil@bottom
+		\setlength{\sigiloffsety}{0pt}
+	\else \if@uuposter@sigil@top
+		\setlength{\sigiloffsety}{\textheight}
+		\addtolength{\sigiloffsety}{-\sigilwidth}
+	\fi \fi
+	\newstaticframe{\sigilwidth}{\sigilwidth}{\sigiloffsetx}{\sigiloffsety}[background]
+	\setstaticframe*{background}{valign=b}
+\fi
+\newlength\mainwidth
+\setlength{\mainwidth}{\textwidth}
+\addtolength{\mainwidth}{-\sidebaroffset}
+\Ncolumntopinarea{static}{\uuposter@columns}{\uuposter@TitleHeight}{\mainwidth}{\textheight}{\sidebaroffset}{0pt}
+\if@uuposter@sigil@corner
+	\setstaticframe{2}{label={title}}
+\else
+	\setstaticframe{1}{label={title}}
+\fi
+\if@uuposter@ruled
+	\newcounter{firstcol}
+	\setcounter{firstcol}{1}
+	\newcounter{secondcol}
+	\forloop{2}{\uuposter@columns}{secondcol}{%
+		\insertvrule{flow}{\thefirstcol}{flow}{\thesecondcol}
+		\addtocounter{firstcol}{1}
+	}
+\fi
+
+\newlength\uupostercolwidth
+\getflowbounds{1}
+\setlength{\uupostercolwidth}{\ffareawidth}
+
+\newstaticframe{\sidebarwidth}{\textheight}{0pt}{0pt}[sidebar]
+\newlength\authoroffset
+\if@uuposter@top
+	\setstaticframe*{title}{backcolor=uuposter@bg}
+	\getstaticbounds*{title}
+	\newstaticframe{\logoboxwidth}{\ffareaheight}{0pt}{\ffareay}[logobox]
+	\setlength{\authoroffset}{\textwidth}
+	\addtolength{\authoroffset}{-\logoboxwidth}
+	\newstaticframe{\logoboxwidth}{\ffareaheight}{\authoroffset}{\ffareay}[authorbox]
+	\addtolength{\authoroffset}{-\logoboxwidth}
+	\newstaticframe{\authoroffset}{\ffareaheight}{\logoboxwidth}{\ffareay}[titlebox]
+\else
+	\setstaticframe*{sidebar}{backcolor=uuposter@bg}
+	\if@uuposter@landscape
+		\setlength{\authoroffset}{3em}
+	\else
+		\setlength{\authoroffset}{6em}
+	\fi
+\fi
+\setallstaticframes{valign=t}
+%    \end{macrocode}
+% \begin{macro}{\uuposterTitleTextColor}
+% \begin{macro}{\uuposterTitleTextStyle}
+% Color and style of title text. Default color is UU red unless the top bar is colored,
+% in which case the default foreground color is used instead.
+%    \begin{macrocode}
+\newcommand\uuposterTitleTextColor{%
+	\if@uuposter@top
+		\color{uuposter@fg}%
+	\else
+		\color{uuposterred}%
+	\fi%
+}
+\newcommand\uuposterTitleTextStyle{%
+	\sffamily\bfseries\veryHuge%
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%    \begin{macrocode}
+\renewcommand\@maketitle{%
+  \raggedright%
+  \let \footnote \thanks
+    {%
+    \uuposterTitleTextColor%
+	\uuposterTitleTextStyle%
+    \@title \par}%
+  \par
+  }
+\newcommand\uuposterBeforeTitle{}
+\newcommand\uuposterTitleContent{\maketitle}
+\newcommand\uuposterAfterTitle{}
+\newcommand\uuposterTitle{%
+	\uuposterBeforeTitle%
+	\uuposterTitleContent%
+	\uuposterAfterTitle}
+%    \end{macrocode}
+% \begin{macro}{\uuposterAuthor}
+% Override this to set the author content in the document:
+%    \begin{macrocode}
+\newcommand\uuposterAuthor{}
+%    \end{macrocode}
+%\end{macro}
+%    \begin{macrocode}
+\newcommand{\uuposterAuthorBlock}{%
+	\uuposterBeforeAuthor%
+	\uuposterAuthorContent%
+	\uuposterAfterAuthor%
+}
+\newcommand\uuposterAuthorFootSkip{%
+	\if@uuposter@top
+		\vspace{0.5\baselineskip}
+	\else
+		\vspace{\baselineskip}
+	\fi%
+}
+\newlength\uuposterAuthorOffset
+\if@uuposter@top
+	\setlength{\uuposterAuthorOffset}{0pt}
+\else
+	\if@uuposter@landscape
+		\setlength{\uuposterAuthorOffset}{3em}
+	\else
+		\setlength{\uuposterAuthorOffset}{6em}
+	\fi
+\fi
+\newcommand\uuposterBeforeAuthor{%
+	\if@uuposter@sigil@margin
+		\vfill
+	\else
+		\vskip \uuposterAuthorOffset
+	\fi%
+}
+\newcommand\uuposterAuthorTextColor{\color{uuposter@fg}}
+\newcommand\uuposterAuthorTextStyle{\sffamily\Large}
+\newcommand\uuposterAuthorContent{%
+	\begin{minipage}{0.9\logoboxwidth}
+		\renewcommand{\thempfootnote}{\textcolor{uuposter@fg}{\Large{{\arabic{mpfootnote}}}}}
+		\uuposterAuthorTextColor\uuposterAuthorTextStyle\uuposterAuthor
+		\uuposterAuthorFootSkip
+	\end{minipage}%
+}
+\newcommand\uuposterAfterAuthor{}
+\newcommand\uuposterInstTextStyle{\large\sffamily}
+\newcommand\uuposterInstTextColor{\uuposterAuthorTextColor}
+\newcommand{\uuposterInst}[1]{%
+	\footnote{\uuposterInstTextColor\uuposterInstTextStyle{#1}}%
+}
+
+\newcommand\uuposterBeforeLogo{%
+	\vspace{\logoboxoffset}
+}
+\newcommand\uuposterLogoContent{\uuposter@LogoInclude}
+\newcommand\uuposterAfterLogo{}
+\newcommand\uuposterLogo{%
+	\uuposterBeforeLogo%
+	\uuposterLogoContent%
+	\uuposterAfterLogo%
+}
+
+
+\newcommand\uuposterSectionTextColor{\color{black}}
+\newcommand\uuposterSectionTextStyle{\sffamily\Huge}
+\newcommand\uuposterSubSectionTextColor{\uuposterSectionTextColor}
+\newcommand\uuposterSubSectionTextStyle{\sffamily\huge}
+\renewcommand\section{%
+\@startsection{section}{1}{\z@}%
+              {-3ex \@plus -1ex \@minus -.2ex}%
+              {2.3ex \@plus.2ex}%
+              {\uuposterSectionTextColor\uuposterSectionTextStyle}}
+\renewcommand\subsection{%
+\@startsection{subsection}{2}{\z@}%
+              {-2.25ex\@plus -1ex \@minus -.2ex}%
+              {1ex \@plus .2ex}%
+              {\uuposterSubSectionTextColor\uuposterSubSectionTextStyle}}
+\newcommand\uuposterBodyTextStyle{\normalsize}
+\newcommand\uuposterBodyTextColor{\color{black}}        
+\hyphenpenalty 10000
+\tolerance 5000
+
+
+
+%    \end{macrocode}
+% Now we place the contents 
+%    \begin{macrocode}
+\AtBeginDocument{%
+\if@uuposter@sigil@corner
+	\begin{staticcontents*}{background}
+		\raggedleft
+		\uuposterSigil
+	\end{staticcontents*}
+\fi
+\if@uuposter@top
+	\begin{staticcontents*}{titlebox}%
+		\uuposterTitle%
+	\end{staticcontents*}
+	\begin{staticcontents*}{logobox}
+		\uuposterLogo
+	\end{staticcontents*}
+	\begin{staticcontents*}{authorbox}
+		\uuposterAuthorBlock
+	\end{staticcontents*}
+\else
+	\begin{staticcontents*}{title}%
+		\uuposterTitle%
+	\end{staticcontents*}
+	\begin{staticcontents*}{sidebar}
+	\begin{center}
+	\uuposterLogo
+	\uuposterAuthorBlock
+	\end{center}
+	\if@uuposter@sigil@margin
+		\vfill
+		\uuposterSigil
+	\fi
+	\end{staticcontents*}
+\fi
+\uuposterBodyTextColor\uuposterBodyTextStyle%
+}
+
+%    \end{macrocode}
+%
+% \begin{macro}{\dummyMacro}
+% This is a dummy macro.  If it did anything, we'd describe its
+% implementation here.
+%    \begin{macrocode}
+\newcommand{\dummyMacro}{}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{environment}{dummyEnv}
+% This is a dummy environment.  If it did anything, we'd describe its
+% implementation here.
+%    \begin{macrocode}
+\newenvironment{dummyEnv}{%
+}{%
+%    \end{macrocode}
+% \changes{v1.0a}{2004/11/05}{Added a spurious change log entry to
+%   show what a change \emph{within} an environment definition looks
+%   like.}
+% Don't use |%| to introduce a code comment within a |macrocode|
+% environment.  Instead, you should typeset all of your comments with
+% \LaTeX---doing so gives much prettier results.  For comments within a
+% macro/environment body, just do an |\end{macrocode}|, include some
+% commentary, and do another |\begin{macrocode}|.  It's that simple.
+%    \begin{macrocode}
+}
+%    \end{macrocode}
+% \end{environment}
+%
+% \Finale
+\endinput
