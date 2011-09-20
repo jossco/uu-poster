@@ -22,7 +22,7 @@
 %<class>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<class>\ProvidesClass{UUposter}
 %<*class>
-    [2011/09/19 v0.4b Class for making scientific posters in the style of Uppsala University]
+    [2011/09/20 v0.5 Class for making scientific posters in the style of Uppsala University]
 %</class>
 %
 %<*driver>
@@ -30,6 +30,7 @@
 \EnableCrossrefs         
 \CodelineIndex
 \RecordChanges
+\usepackage{hyperref}
 \begin{document}
   \DocInput{UUposter.dtx}
 \end{document}
@@ -59,6 +60,7 @@
 % \changes{0.2b}{2011-09-04}{xetex driver optional, changed image files}
 % \changes{0.3b}{2011-09-05}{Ruled option now supports variable number of columns}
 % \changes{0.4b}{2011-09-19}{fixed header height calculation in landscape mode}
+% \changes{0.5}{2011-09-20}{Moved to .dtx .ins structure, documented source file}
 %
 % \GetFileInfo{UUposter.dtx}
 %
@@ -67,6 +69,8 @@
 % \DoNotIndex{\@ne}
 % \DoNotIndex{\advance,\begingroup,\catcode,\closein}
 % \DoNotIndex{\closeout,\day,\def,\edef,\else,\empty,\endgroup}
+% \DoNotIndex{\ifcase,\ifthenelse,\includegraphics\DeclareOptionX,\CurrentOption,\ExecuteOptionsX}
+% \DoNotIndex{\arabic,\addtolength,\setlength,\addtocounter,\setcounter,\choicekey,\definecolor}
 % 
 %
 % \title{The \textsf{UUposter} class\thanks{This document
@@ -77,33 +81,115 @@
 %
 % \section{Introduction}
 %
-% Put text here.
+% Making a scientific poster in \LaTeX\ is a non-trivial task, as anyone who has made the attempt is aware. This class makes use of the \textsf{a0poster} base class and the \textsf{flowfram} package for the layout of posters in the style of Uppsala University. It was initially designed for personal use, and the resulting design reflects the aesthetic sensibilities of the author; however, an attempt has been made to make the class as flexible as (reasonably) possible.
 %
-% \section{Usage}
+%\section{Usage}
+%The default layout is an a0 poster in portrait orientation, with a light grey sidebar on the left, and a title in red at the top.
+%The university logo will appear in the top left corner (inside the sidebar), followed by author information.
+%The main body of the poster consists of several columns of flowing content. 
+%These columns are called \emph{flow frames} in the \textsf{flowfram} package, while the sidebar and title bar are in \emph{static frames}.
 %
-% Put text here.
+%No special measures need to be taken to get the contents of your document into the flow frames.
+%Sectioning commands should work normally.
 %
-% \DescribeMacro{\dummyMacro}
-% This macro does nothing.\index{doing nothing|usage} It is merely an
-% example.  If this were a real macro, you would put a paragraph here
-% describing what the macro is supposed to do, what its mandatory and
-% optional arguments are, and so forth.
+%\subsection{Floats}
+%You can use floats inside the flow frames, although your results may vary.
+%Wrapping text around floats is not straightforward, as the \textsf{wrapfig} package does not seem to function correctly inside a flow frame.
+%The best option seems to be using the \textsf{multicol} package to make a small section with side-by-side figure and text.
+%Alternately, you can use \textsf{sidecap} to place captions alongside figures, and \textsf{caption} to adjust the formatting.
 %
-% \DescribeEnv{dummyEnv}
-% This environment does nothing.  It is merely an example.
-% If this were a real environment, you would put a paragraph here
-% describing what the environment is supposed to do, what its
-% mandatory and optional arguments are, and so forth.
+%\subsection{Author and Title}
+%\DescribeMacro{\title} The title of the poster is set using |\title| \marg{title}, just as you would expect.
+%
+%The author block is less straightforward, unfortunately.
+%You will need to redefine the \DescribeMacro{\uuposterAuthor}|\uuposterAuthor| macro in your document preface, like so:
+%\begin{verbatim}
+%	\renewcommand\uuposterAuthor{
+%		Joseph~Scott\uuposterInst{Dept. of Information Technology,\\University of Uppsala}\\
+%		Someone~Else\uuposterInst{Another Division,\\ Another School}
+%	}
+%\end{verbatim}
+%The contents of the author block are typeset in a minipage environment, and the \DescribeMacro{\uuposterInst}|\uuposterInst| macros create footnotes at the bottom of this minipage.
+%The spacing is optimized for the \textbf{sidebar} layout; if you are using the \textbf{top} layout, you may need to renew the \DescribeMacro{\uuposterAuthorContent}|\uuposterAuthorContent| macro to get an author format that works for you. The default author block is generated like this:
+%\begin{verbatim}
+%\newcommand\uuposterAuthorContent{%
+%	\begin{minipage}{0.9\logoboxwidth}
+%		\renewcommand{\thempfootnote}{\textcolor{uuposter@fg}{\Large{{\arabic{mpfootnote}}}}}
+%		\uuposterAuthorTextColor\uuposterAuthorTextStyle\uuposterAuthor
+%		\uuposterAuthorFootSkip
+%	\end{minipage}%
+%}
+%\end{verbatim}
+%If you rewrite |\uuposterAuthorContent|, make sure to call |\uuposterAuthor| inside it, to make the author content appear.
+%\subsection{Style}
+% Inspired by the \textsf{memoir} package, most of the text styling in the class is handled through user-modifiable hooks.
+% For example, the title is typeset by the \DescribeMacro{\uuposterTitle}|\uuposterTitle| macro, defined like this:
+%\begin{verbatim}
+%\newcommand\uuposterTitle{%
+%	\uuposterBeforeTitle%
+%	\uuposterTitleContent%
+%	\uuposterAfterTitle}
+%\end{verbatim}
+%By default,\DescribeMacro{\uuposterBeforeTitle}|\uuposterBeforeTitle|  and \DescribeMacro{\uuposterAfterTitle}|\uuposterAfterTitle|  are empty commands, while \DescribeMacro{\uuposterTitleContent}|\uuposterTitleContent|  just calls |\maketitle|.
+%The user can renew any of these commands in order to get a fine-grained control over the typesetting of the title, though; the author information is typeset in a similar fashion. See the implementation section below for more on what you should be able to modify easily.
+%
+%Similarly, most font settings are accomplished using macros such as \DescribeMacro{\uuposterTitleTextStyle}|\uuposterTitleTextStyle| and \DescribeMacro{\uuposterTitleTextColor}|\uuposterTitleTextColor| .
+%These macros should be changed if you want a different style. For example, to set the title in italics, and reduce the size to huge, you would add this to your preamble:
+%\begin{verbatim}
+%\renewcommand\uuposterTitleTextStyle{\sffamily\itshape\huge}
+%\end{verbatim}
+% The same approach can be used to change the body text, using \DescribeMacro{\uuposterBodyTextColor}|\uuposterBodyTextColor| and \DescribeMacro{\uuposterBodyTextStyle}|\uuposterBodyTextStyle|.
+%\subsection{Changing the Layout}
+% If you want a completely different layout, you should just use \textsf{a0poster} and \textsf{flowfram} from scratch, as this will almost certainly involve less work than modifying the relatively fixed layout of this class \textit{post hoc}.
+% That having been said, it is perfectly possible to shift the positions of frames, or create new ones, in your document's preamble.
+% Unfortunately, this involves some calculations to get things to look good.
+% If you're interested in adding a non-overlapping frame to a UUposter, I suggest that you read the \textsf{flowfram} manual.\footnote{Or at the very least, read Nicola Talbot's web page at \url{http://theoval.cmp.uea.ac.uk/~nlct/latex/posters/}}
+%\subsection{Bibliography}
+% Support for including a bibliography is limited, but you shouldn't need a fancy bibliography on a poster anyway\dots Anyway, including the \textbf{bib} option will create a static frame (|bibframe|) at the bottom of the poster. By default, it is |3\baselineskip| in height, and is offset from the bottom of the text frames by |1\baselineskip|, but both of those values are adjustable. This will, of course, make the text frames shorter.
+%
+% There is a bibtex style file (\textsf{UUposter.bst}) included with the package that will make for relatively short bibliographic entries, but I make no guarantees that it will handle strange cases well. If you want to use it, you'll need to copy it somewhere that your \TeX can find it (try \textasciitilde/Library/texmf/bibtex/bst/ if you're using MacTex).
+% Not knowing what your bibtex file is named, the class cannot be responsible for filling |bibframe|, so you'll need to do that yourself with something like this in the body of your document:
+%\begin{verbatim}
+%\begin{staticcontents*}{bibframe}\footnotesize
+%\bibliographystyle{UUposter}
+%\bibliography{bibtexfilename}
+%\end{staticcontents*}
+%\end{verbatim}
+% \section{Options}
+% Any unrecognized options are assumed to be intended for the \textsf{a0poster} class.
+%\begin{description}
+%\item[xetex] Load the \textsf{UUxetex} package (included with this distribution) in order to utilize the Uppsala University standard fonts: Berling (serif) and Gill Sans Alt One (sans). Note that both of these fonts must be installed on your system if you wish to use them. They are not distributed with this package, but are licensed by the University for official use, and are available to employees from the Office of Graphics and Printing website. Passing this option ensures that \textsf{fontspec}, etc., are loaded before \textsf{flowfram}; loading XeTeX font handling packages after \textsf{flowfram} will break the layout of the poster.
+%\item[notimes, nohelvet] When not using \textsf{fontspec} to load the University fonts, the class will normally use the approved fallbacks (namely, Times and Helvetica). These options allow you to prevent the loading of one or both of these fonts.
+%\item[nomathtools] By default, the incredibly useful \textsf{mathtools} package is loaded, which in turn loads the AMS math packages. Rude, I know, but \textsf{mathtools} works best if loaded before \textsf{unicode-math}, which gets loaded by this class if you are using the \textbf{xetex} option, because \emph{that} needs to get loaded before \textsf{flowfram}\dots I think you see where this is going. If \textsf{mathtools} bugs you, you can switch it off.
+%\item[mathtools=\marg{options}] On the other hand, this option allows you to pass options along to \textsf{mathtools}, and by extension on to the \textsf{amsmath} package. See the \textsf{mathtools} documentation for details.
+%\item[red, grey, gray] Choose the background color of the info bar. These options in turn imply a contrasting font color for the info bar (black text on a grey background, white text on a red background) and make an initial logo selection (four color on the grey background, white on the red background). You can override either of these choices by passing the appropriate options, just make sure to pass those options \emph{after} choosing the info bar color; otherwise your custom choice will be overridden. Note that the only difference between \textbf{gray} and \textbf{grey} lies in the conscience of the user.
+%\item[top] By default, an information bar with contrasting background color is placed on the (left) side of the poster. If you would prefer to have a contrasting bar at the top, this is the option for you. This will result in several alterations to the layout of the poster. The title remains at the top of the poster in either case, although its color will change (red by default if the contrasting bar is at the side; whatever the foreground color of the bar is if the bar is at the top). The author prefers a sidebar, so unfortunately \textbf{top} may be less well supported. You may need to tweak a couple of macros to get it looking just the way you want it (especially |\uuposterAuthorContent|)\dots
+%\item[landscape, portrait] Orientation of the poster. The default is \textbf{portrait}, and that is the better supported option; nevertheless, effort has been made to adjust measurements appropriately when \textbf{landscape} is selected.
+%\item[columns=\meta{num}] The number of columns in the main body (that is, exclusive of the sidebar). Default is 2 columns for portrait and 3 for landscape; make sure to specify the \textbf{column} option \emph{after} choosing the orientation if you want to override these defaults.
+%\item[ruled] Places a vertical rule between each pair of columns in the main body. This is intended as a convenience method, but since the placement of these rules is determined at class load, no document specific alterations to the layout of the flow frames can be taken into account here. If you are manually changing any part of the poster layout (such as adding a static text box at the footer), you should also add the rules yourself, either by calling |\uuposterInsertVerticalRules| in the document preface after you've made any layout changes, or by using the |\insertvrule| macro of the \textsf{flowfram} package.
+%\item[logo=\meta{type}] Select the logo icon, where \meta{type} is one of \textbf{4f} (four color), \textbf{2f} (two color), \textbf{sv} (black), or \textbf{vit} (white). The default depends on the background color of the info bar (see above).
+%\item[sigil=\meta{type}] Select a sigil to be used in the background. The default is to have no sigil. \meta{type} may be one of:
+%	\begin{description}
+%		\item[NW, NE, SW, SE] A roughly quarter-circle sigil in 10\% grey will be placed in the corresponding corner (i.e., northwest, northeast, etc.). \textbf{NOTE: southeast (SE) is currently the only supported option here, and the image file used for that logo is quite large. Using this option will result in both larger file sizes and slower typesetting. Will fix in a future version as time permits.}
+%		\item[margin] Place a 5\% grey partial sigil in the colored info bar (at the bottom of the sidebar, or at the right of a top bar---although at the moment only the sidebar is supported). 
+%	\end{description}
+%\item[sigilwidth=\meta{num}] Width of the sigil, in terms of |\textwidth|. In other words, the default value of 0.5 corresponds to a sigil that is  |0.5\textwidth| wide. This applies only to corner sigils; marginal sigils are always the width of the info bar.
+%\item[sidebarwidth=\meta{num}] Width of the sidebar, as a proportion of |\textwidth|. This option is ignored when \textbf{top} is selected.
+%\item[titleheight=\meta{num}] The height of the title bar (default is 6em). Also the height of the info bar when \textbf{top} is active.
+%\item[math,noxits,serif,sans] These option are passed directly to \textsf{UUxetex}, and are meaningless if that package is not loaded. See package documentation for details.
+%\item[bib] Include a static frame at the bottom of the page for the bibliography. The frame will be named |bibframe|, and will be the width of the combined text columns (although you can change that yourself, using something like |\setstaticframe*{bibframe}{width=\dots}|).
+%\item[biblines=\meta{num}] Height of bibliography, as a product of |\baselineskip|
+%\item[biboffset=\meta{num}] Distance between bottom of text columns and top of bibliography, as a product of |\baselineskip|.
+%\end{description}
+%
 %
 % \StopEventually{\PrintChanges\PrintIndex}
 %
 % \section{Implementation}
-%
-% For simplicity, we'll derive everything from the standard |article|
-% class.
+% \subsection{Options}
+% Using \textsf{xkeyval} for key, value pair processing.
 %    \begin{macrocode}
 \RequirePackage{xkeyval}
-
 \newif\if@uuposter@xetex
 \newif\if@uuposter@times
 \@uuposter@timestrue
@@ -125,27 +211,22 @@
 \newlength\logoboxwidth
 \newlength\uuposter@TitleHeight
 \newif\if@uuposter@TitleHeightSet
-\DeclareOptionX{xetex}{
-	\@uuposter@xetextrue
-}
-\DeclareOptionX{notimes}{
-	\@uuposter@timefalse
-}
-\DeclareOptionX{nohelvet}{
-	\@uuposter@helvetfalse
-}
-\DeclareOptionX{nomathtools}{
-	\@uuposter@mathtoolsfalse
-}
-\DeclareOptionX{mathtools}[]{
-	\PassOptionsToPackage{mathtools}{#1}
-}
+\DeclareOptionX{xetex}{\@uuposter@xetextrue}
+\DeclareOptionX{notimes}{\@uuposter@timefalse}
+\DeclareOptionX{nohelvet}{\@uuposter@helvetfalse}
+\DeclareOptionX{nomathtools}{\@uuposter@mathtoolsfalse}
+\DeclareOptionX{mathtools}[]{\PassOptionsToPackage{mathtools}{#1}}
 \DeclareOptionX{red}{
 	\@uuposter@redtrue
 	\@uuposter@greyfalse	
 	\ExecuteOptionsX{logo=vit}
 }
 \DeclareOptionX{grey}{
+	\@uuposter@redfalse
+	\@uuposter@greytrue
+	\ExecuteOptionsX{logo=4f}
+}
+\DeclareOptionX{gray}{
 	\@uuposter@redfalse
 	\@uuposter@greytrue
 	\ExecuteOptionsX{logo=4f}
@@ -161,11 +242,8 @@
 }
 \DeclareOptionX{columns}[2]{\def \uuposter@columns {#1}}
 \DeclareOptionX{ruled}{\@uuposter@ruledtrue}
-
 \DeclareOptionX{logo}[4f]{\def\uuposter@LogoInclude{\includegraphics[width=\logoboxwidth]{UU_logo_#1_84}}}
-
-\newcommand{\uuposterSigil}{
-}
+\newcommand{\uuposterSigil}{}
 \define@choicekey+{UUposter.cls}{sigil}[\val\nr]{NW,NE,SW,SE,margin}[SE]{
 	\ifcase\nr\relax
 		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SO_10Svart}}
@@ -204,41 +282,39 @@
 		\@uuposter@sigil@cornerfalse
 		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_marginalsigill_5Svart}}
 	\fi
-}{%
-	\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}
-}
-\DeclareOptionX{sigilwidth}[0.5]{
-	\def\sigilproportion{#1}
-}
-\DeclareOptionX{sidebarwidth}[0.2]{
-	\def\sidebarproportion{#1}
-}
+}{\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}}
+\DeclareOptionX{sigilwidth}[0.5]{\def\sigilproportion{#1}}
+\DeclareOptionX{sidebarwidth}[0.2]{\def\sidebarproportion{#1}}
 \DeclareOptionX{titleheight}[6em]{
 	\@uuposter@TitleHeightSettrue
 	\setlength\uuposter@TitleHeight{#1}
 }
-
 \DeclareOptionX{math}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
 \DeclareOptionX{noxits}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
 \DeclareOptionX{serif}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
 \DeclareOptionX{sanserif}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
-	
-
+\newif\if@uuposter@hasbib
+\DeclareOptionX{bib}{\@uuposter@hasbibtrue}
+\DeclareOptionX{biblines}[3]{\def\uuposter@biblines{#1}}
+\DeclareOptionX{biboffset}[1]{\def\uuposter@biboffset{#1}}
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{a0poster}}
-\ExecuteOptionsX{grey,sigilwidth,portrait}
+\ExecuteOptionsX{grey,sigilwidth,portrait,biblines,biboffset}
 \ProcessOptionsX\relax
-
+%    \end{macrocode}
+% \subsection{Base Class}
+%    \begin{macrocode}
 \if@uuposter@landscape
 	\PassOptionsToClass{landscape}{a0poster}
 \else
 	\PassOptionsToClass{portrait}{a0poster}
 \fi
 \LoadClass{a0poster}
-
+%    \end{macrocode}
+% \subsection{Misc. packages}
+%    \begin{macrocode}
 \if@uuposter@mathtools
 	\RequirePackage{mathtools}
 \fi
-
 \if@uuposter@xetex
 	\RequirePackage{UUxetex}
 \else
@@ -249,13 +325,15 @@
 		\RequirePackage{helvet}
 	\fi
 \fi
-
+%    \end{macrocode}
+% \begin{macro}{xcolor}
+% At the moment only red and light grey are actually used. I copied these values from the uu beamer theme, incidentally.
+%    \begin{macrocode}
 \RequirePackage{xcolor}
 \definecolor{uuposterred}{RGB}{153,0,0}
 \definecolor{uuposterlightgrey}{RGB}{230,230,230}
 \definecolor{uupostermidgrey}{RGB}{190,190,190}
 \definecolor{uuposterdarkgrey}{RGB}{130,130,130}
-
 \if@uuposter@red
 	\definecolor{uuposter@bg}{named}{uuposterred}
 	\definecolor{uuposter@fg}{named}{white}
@@ -266,14 +344,19 @@
 	\fi
 \fi
 %    \end{macrocode}
-% The footmisc package is used to fix footnotes in the sidebar minipage:
+% \end{macro}
+% \begin{macro}{footmisc}
+% The \textsf{footmisc} package is used to fix footnotes in the sidebar minipage:
 %    \begin{macrocode}
 \RequirePackage[hang,norule,multiple]{footmisc}
 \setlength{\footnotemargin}{2em}
-
+%    \end{macrocode}
+% \end{macro}
+%    \begin{macrocode}
 \RequirePackage{graphicx}
 %    \end{macrocode}
-% Using the forloop package just for this seems ridiculous, so I don't:
+% \begin{macro}{forloop}
+% Using the \textsf{forloop} package just for this seems ridiculous, so I don't:
 %    \begin{macrocode}
 \RequirePackage{ifthen}
 \newcommand{\forloop}[5][1]{%
@@ -286,20 +369,29 @@
 }{%
 #5 %
 }}%
-
 %    \end{macrocode}
-% flowfram is used to control the poster layout:
+%\end{macro}
+% \subsection{Flow frame layout}
+% The \textsf{flowfram} package is used to control the poster layout:
 %    \begin{macrocode}
 \RequirePackage{flowfram}
+%    \end{macrocode}
+%  |\vcolumnsep| is the space between two vertical columns. For consistency, this value is used several other places in the layout, so changing it may move more things than you expect. Still, any small value should work out OK.
+% |\columnsep| defaults to the same value, but doesn't get used nearly as often.
+%    \begin{macrocode}
 \setlength{\vcolumnsep}{2\baselineskip}
 \setlength{\columnsep}{2\baselineskip}
+%    \end{macrocode}
+% These lengths are mostly dependent on a combination of orientation (portrait vs. landscape) and layout (top vs. side).
+% You should be able to control them pretty well with the class options, but in a pinch you can modify them directly.
+%    \begin{macrocode}
 \newlength\sidebarwidth
 \newlength\sidebaroffset
 \setlength{\sidebarwidth}{\sidebarproportion\textwidth}
 \setlength{\logoboxwidth}{\sidebarwidth}
-\addtolength{\logoboxwidth}{-\vcolumnsep}
+\addtolength{\logoboxwidth}{-\columnsep}
 \newlength\logoboxoffset
-\setlength{\logoboxoffset}{\vcolumnsep}
+\setlength{\logoboxoffset}{\columnsep}
 \if@uuposter@TitleHeightSet
 	\if@uuposter@top
 		\setlength{\logoboxwidth}{\uuposter@TitleHeight}
@@ -354,16 +446,6 @@
 \else
 	\setstaticframe{1}{label={title}}
 \fi
-\if@uuposter@ruled
-	\newcounter{firstcol}
-	\setcounter{firstcol}{1}
-	\newcounter{secondcol}
-	\forloop{2}{\uuposter@columns}{secondcol}{%
-		\insertvrule{flow}{\thefirstcol}{flow}{\thesecondcol}
-		\addtocounter{firstcol}{1}
-	}
-\fi
-
 \newlength\uupostercolwidth
 \getflowbounds{1}
 \setlength{\uupostercolwidth}{\ffareawidth}
@@ -387,8 +469,57 @@
 		\setlength{\authoroffset}{6em}
 	\fi
 \fi
+
+%    \end{macrocode}
+% \subsection{Bibliography}
+% Create a bibliography frame at the bottom of the page if requested.
+% There is an assumption here that the height of all the flow frames are equal,
+% so using the height of just the first frame makes sense for all of them.
+% \changes{0.5}{2011-09-20}{Added the option for a bibliography frame at the bottom.}
+%    \begin{macrocode}
+\if@uuposter@hasbib
+	\newlength{\bibframeheight}
+	\setlength{\bibframeheight}{\uuposter@biblines\baselineskip}
+	\newlength{\biboffset}
+	\setlength{\biboffset}{\bibframeheight}
+	\addtolength{\biboffset}{\uuposter@biboffset\baselineskip}
+	\computeflowframearea{1,\uuposter@columns}
+	\addtolength{\ffareaheight}{-\biboffset}
+	\newcounter{maincol}
+	\setcounter{maincol}{1}
+	\forloop{1}{\uuposter@columns}{maincol}{%
+		\setflowframe{\themaincol}{y=\biboffset,height=\ffareaheight}
+	}
+	\newlength{\bibframewidth}
+	\setlength{\bibframewidth}{\ffareawidth}
+	\newstaticframe{\bibframewidth}{\bibframeheight}{\ffareax}{0in}[bibframe]
+	\setstaticframe*{bibframe}{border=plain}
+	\renewcommand{\refname}{}
+\fi
+%    \end{macrocode}
+%\subsection{Vertical Rules}
+% \begin{macro}{\uuposterInsertVerticalRules}
+% Insert a vertical rule between every pair of flow frames:
+%\changes{0.5}{2011-09-20}{Made the insert rules macro user accessible}
+%    \begin{macrocode}
+\newcommand\uuposterInsertVerticalRules{
+	\newcounter{firstcol}
+	\setcounter{firstcol}{1}
+	\newcounter{secondcol}
+	\forloop{2}{\uuposter@columns}{secondcol}{%
+		\insertvrule{flow}{\thefirstcol}{flow}{\thesecondcol}
+		\addtocounter{firstcol}{1}
+	}
+}
+%    \end{macrocode}
+% \end{macro}
+%    \begin{macrocode}
+\if@uuposter@ruled
+	\uuposterInsertVerticalRules
+\fi
 \setallstaticframes{valign=t}
 %    \end{macrocode}
+% \subsection{Title}
 % \begin{macro}{\uuposterTitleTextColor}
 % \begin{macro}{\uuposterTitleTextStyle}
 % Color and style of title text. Default color is UU red unless the top bar is colored,
@@ -407,6 +538,8 @@
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
+% \begin{macro}{\maketitle}
+% This is called by |\uuposterTitleContent|. You probably don't need to modify this directly, but feel free.
 %    \begin{macrocode}
 \renewcommand\@maketitle{%
   \raggedright%
@@ -417,26 +550,52 @@
     \@title \par}%
   \par
   }
+ %    \end{macrocode}
+ % \end{macro}
+ % Modify these macros to control the placement of the title:
+ % \begin{macro}{\uuposterBeforeTitle}
+ %    \begin{macrocode}
 \newcommand\uuposterBeforeTitle{}
+ %    \end{macrocode}
+ % \end{macro}
+ % \begin{macro}{\uuposterTitleContent}
+ %    \begin{macrocode}
 \newcommand\uuposterTitleContent{\maketitle}
+ %    \end{macrocode}
+ % \end{macro}
+ % \begin{macro}{\uuposterAfterTitle}
+ %    \begin{macrocode}
 \newcommand\uuposterAfterTitle{}
+ %    \end{macrocode}
+ % \end{macro}
+ % \begin{macro}{\uuposterTitle}
+ %    \begin{macrocode}
 \newcommand\uuposterTitle{%
 	\uuposterBeforeTitle%
 	\uuposterTitleContent%
 	\uuposterAfterTitle}
 %    \end{macrocode}
+% \end{macro}
+%\subsection{Author}
 % \begin{macro}{\uuposterAuthor}
 % Override this to set the author content in the document:
 %    \begin{macrocode}
 \newcommand\uuposterAuthor{}
 %    \end{macrocode}
 %\end{macro}
+% \begin{macro}{\uuposterAuthorBlock}
+%
 %    \begin{macrocode}
 \newcommand{\uuposterAuthorBlock}{%
 	\uuposterBeforeAuthor%
 	\uuposterAuthorContent%
 	\uuposterAfterAuthor%
 }
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterAuthorFootSkip}
+% The space between the list of authors and the list of institutions:
+%    \begin{macrocode}
 \newcommand\uuposterAuthorFootSkip{%
 	\if@uuposter@top
 		\vspace{0.5\baselineskip}
@@ -444,6 +603,11 @@
 		\vspace{\baselineskip}
 	\fi%
 }
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterAuthorOffset}
+% The space above the author list.
+%    \begin{macrocode}
 \newlength\uuposterAuthorOffset
 \if@uuposter@top
 	\setlength{\uuposterAuthorOffset}{0pt}
@@ -454,6 +618,11 @@
 		\setlength{\uuposterAuthorOffset}{6em}
 	\fi
 \fi
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterBeforeAuthor}
+% Create a little space above the author list. Alternately, if a sigil is in the sidebar, let the authors float between the bottom of the logo and the top of the sigil.
+%    \begin{macrocode}
 \newcommand\uuposterBeforeAuthor{%
 	\if@uuposter@sigil@margin
 		\vfill
@@ -461,8 +630,23 @@
 		\vskip \uuposterAuthorOffset
 	\fi%
 }
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterAuthorTextColor}
+% Color of the author text.
+%    \begin{macrocode}
 \newcommand\uuposterAuthorTextColor{\color{uuposter@fg}}
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterAuthorTextStyle}
+% Style of the author text. You may need to make this smaller if you shrink the sidebar.
+%    \begin{macrocode}
 \newcommand\uuposterAuthorTextStyle{\sffamily\Large}
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterAuthorContent}
+% This works well for the sidebar, even with a large number of authors. Squeezing several authors into the top bar may require a bit of creativity, though.
+%    \begin{macrocode}
 \newcommand\uuposterAuthorContent{%
 	\begin{minipage}{0.9\logoboxwidth}
 		\renewcommand{\thempfootnote}{\textcolor{uuposter@fg}{\Large{{\arabic{mpfootnote}}}}}
@@ -470,25 +654,73 @@
 		\uuposterAuthorFootSkip
 	\end{minipage}%
 }
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterAfterAuthor}
+%
+%    \begin{macrocode}
 \newcommand\uuposterAfterAuthor{}
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterInstTextStyle}
+%
+%    \begin{macrocode}
 \newcommand\uuposterInstTextStyle{\large\sffamily}
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterInstTextColor}
+%
+%    \begin{macrocode}
 \newcommand\uuposterInstTextColor{\uuposterAuthorTextColor}
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterInst}
+%
+%    \begin{macrocode}
 \newcommand{\uuposterInst}[1]{%
 	\footnote{\uuposterInstTextColor\uuposterInstTextStyle{#1}}%
 }
-
+%    \end{macrocode}
+%\end{macro}
+% \subsection{Logo}
+% \begin{macro}{\uuposterBeforeLogo}
+%
+%    \begin{macrocode}
 \newcommand\uuposterBeforeLogo{%
 	\vspace{\logoboxoffset}
 }
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterLogoContent}
+%
+%    \begin{macrocode}
 \newcommand\uuposterLogoContent{\uuposter@LogoInclude}
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterAfterLogo}
+%
+%    \begin{macrocode}
 \newcommand\uuposterAfterLogo{}
+%    \end{macrocode}
+%\end{macro}
+% \begin{macro}{\uuposterLogo}
+%
+%    \begin{macrocode}
 \newcommand\uuposterLogo{%
 	\uuposterBeforeLogo%
 	\uuposterLogoContent%
 	\uuposterAfterLogo%
 }
-
-
+%    \end{macrocode}
+%\end{macro}
+% \subsection{Sectioning Commands}
+%\begin{macro}{\uuposterSectionTextColor}
+%\begin{macro}{\uuposterSectionTextStyle}
+%\begin{macro}{\uuposterSubSectionTextColor}
+%\begin{macro}{\uuposterSubSectionTextStyle}
+%\begin{macro}{\section}
+%\begin{macro}{\subSection}
+%    \begin{macrocode}
 \newcommand\uuposterSectionTextColor{\color{black}}
 \newcommand\uuposterSectionTextStyle{\sffamily\Huge}
 \newcommand\uuposterSubSectionTextColor{\uuposterSectionTextColor}
@@ -503,15 +735,27 @@
               {-2.25ex\@plus -1ex \@minus -.2ex}%
               {1ex \@plus .2ex}%
               {\uuposterSubSectionTextColor\uuposterSubSectionTextStyle}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\uuposterBodyTextStyle}
+% \begin{macro}{\uuposterBodyTextColor}
+%    \begin{macrocode}
 \newcommand\uuposterBodyTextStyle{\normalsize}
-\newcommand\uuposterBodyTextColor{\color{black}}        
+\newcommand\uuposterBodyTextColor{\color{black}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}   
+%    \begin{macrocode}
 \hyphenpenalty 10000
 \tolerance 5000
-
-
-
 %    \end{macrocode}
-% Now we place the contents 
+%\subsection{Document Contents}
+% None of this gets generated until the document begins, so any changes you make in the preamble should take effect here: 
 %    \begin{macrocode}
 \AtBeginDocument{%
 \if@uuposter@sigil@corner
@@ -547,36 +791,7 @@
 \fi
 \uuposterBodyTextColor\uuposterBodyTextStyle%
 }
-
 %    \end{macrocode}
-%
-% \begin{macro}{\dummyMacro}
-% This is a dummy macro.  If it did anything, we'd describe its
-% implementation here.
-%    \begin{macrocode}
-\newcommand{\dummyMacro}{}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{environment}{dummyEnv}
-% This is a dummy environment.  If it did anything, we'd describe its
-% implementation here.
-%    \begin{macrocode}
-\newenvironment{dummyEnv}{%
-}{%
-%    \end{macrocode}
-% \changes{v1.0a}{2004/11/05}{Added a spurious change log entry to
-%   show what a change \emph{within} an environment definition looks
-%   like.}
-% Don't use |%| to introduce a code comment within a |macrocode|
-% environment.  Instead, you should typeset all of your comments with
-% \LaTeX---doing so gives much prettier results.  For comments within a
-% macro/environment body, just do an |\end{macrocode}|, include some
-% commentary, and do another |\begin{macrocode}|.  It's that simple.
-%    \begin{macrocode}
-}
-%    \end{macrocode}
-% \end{environment}
 %
 % \Finale
-\endinput
+\endinput%

@@ -24,7 +24,6 @@
 \ProvidesClass{UUposter}
     [2011/09/19 v0.4b Class for making scientific posters in the style of Uppsala University]
 \RequirePackage{xkeyval}
-
 \newif\if@uuposter@xetex
 \newif\if@uuposter@times
 \@uuposter@timestrue
@@ -46,27 +45,22 @@
 \newlength\logoboxwidth
 \newlength\uuposter@TitleHeight
 \newif\if@uuposter@TitleHeightSet
-\DeclareOptionX{xetex}{
-\@uuposter@xetextrue
-}
-\DeclareOptionX{notimes}{
-\@uuposter@timefalse
-}
-\DeclareOptionX{nohelvet}{
-\@uuposter@helvetfalse
-}
-\DeclareOptionX{nomathtools}{
-\@uuposter@mathtoolsfalse
-}
-\DeclareOptionX{mathtools}[]{
-\PassOptionsToPackage{mathtools}{#1}
-}
+\DeclareOptionX{xetex}{\@uuposter@xetextrue}
+\DeclareOptionX{notimes}{\@uuposter@timefalse}
+\DeclareOptionX{nohelvet}{\@uuposter@helvetfalse}
+\DeclareOptionX{nomathtools}{\@uuposter@mathtoolsfalse}
+\DeclareOptionX{mathtools}[]{\PassOptionsToPackage{mathtools}{#1}}
 \DeclareOptionX{red}{
 \@uuposter@redtrue
 \@uuposter@greyfalse
 \ExecuteOptionsX{logo=vit}
 }
 \DeclareOptionX{grey}{
+\@uuposter@redfalse
+\@uuposter@greytrue
+\ExecuteOptionsX{logo=4f}
+}
+\DeclareOptionX{gray}{
 \@uuposter@redfalse
 \@uuposter@greytrue
 \ExecuteOptionsX{logo=4f}
@@ -82,11 +76,8 @@
 }
 \DeclareOptionX{columns}[2]{\def \uuposter@columns {#1}}
 \DeclareOptionX{ruled}{\@uuposter@ruledtrue}
-
 \DeclareOptionX{logo}[4f]{\def\uuposter@LogoInclude{\includegraphics[width=\logoboxwidth]{UU_logo_#1_84}}}
-
-\newcommand{\uuposterSigil}{
-}
+\newcommand{\uuposterSigil}{}
 \define@choicekey+{UUposter.cls}{sigil}[\val\nr]{NW,NE,SW,SE,margin}[SE]{
 \ifcase\nr\relax
 \renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SO_10Svart}}
@@ -125,40 +116,33 @@
 \@uuposter@sigil@cornerfalse
 \renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_marginalsigill_5Svart}}
 \fi
-}{%
-\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}
-}
-\DeclareOptionX{sigilwidth}[0.5]{
-\def\sigilproportion{#1}
-}
-\DeclareOptionX{sidebarwidth}[0.2]{
-\def\sidebarproportion{#1}
-}
+}{\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}}
+\DeclareOptionX{sigilwidth}[0.5]{\def\sigilproportion{#1}}
+\DeclareOptionX{sidebarwidth}[0.2]{\def\sidebarproportion{#1}}
 \DeclareOptionX{titleheight}[6em]{
 \@uuposter@TitleHeightSettrue
 \setlength\uuposter@TitleHeight{#1}
 }
-
 \DeclareOptionX{math}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
 \DeclareOptionX{noxits}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
 \DeclareOptionX{serif}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
 \DeclareOptionX{sanserif}{\PassOptionsToPackage{\CurrentOption}{UUxetex}}
-
+\newif\if@uuposter@hasbib
+\DeclareOptionX{bib}{\@uuposter@hasbibtrue}
+\DeclareOptionX{biblines}[3]{\def\uuposter@biblines{#1}}
+\DeclareOptionX{biboffset}[1]{\def\uuposter@biboffset{#1}}
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{a0poster}}
-\ExecuteOptionsX{grey,sigilwidth,portrait}
+\ExecuteOptionsX{grey,sigilwidth,portrait,biblines,biboffset}
 \ProcessOptionsX\relax
-
 \if@uuposter@landscape
 \PassOptionsToClass{landscape}{a0poster}
 \else
 \PassOptionsToClass{portrait}{a0poster}
 \fi
 \LoadClass{a0poster}
-
 \if@uuposter@mathtools
 \RequirePackage{mathtools}
 \fi
-
 \if@uuposter@xetex
 \RequirePackage{UUxetex}
 \else
@@ -169,13 +153,11 @@
 \RequirePackage{helvet}
 \fi
 \fi
-
 \RequirePackage{xcolor}
 \definecolor{uuposterred}{RGB}{153,0,0}
 \definecolor{uuposterlightgrey}{RGB}{230,230,230}
 \definecolor{uupostermidgrey}{RGB}{190,190,190}
 \definecolor{uuposterdarkgrey}{RGB}{130,130,130}
-
 \if@uuposter@red
 \definecolor{uuposter@bg}{named}{uuposterred}
 \definecolor{uuposter@fg}{named}{white}
@@ -187,7 +169,6 @@
 \fi
 \RequirePackage[hang,norule,multiple]{footmisc}
 \setlength{\footnotemargin}{2em}
-
 \RequirePackage{graphicx}
 \RequirePackage{ifthen}
 \newcommand{\forloop}[5][1]{%
@@ -200,7 +181,6 @@
 }{%
 #5 %
 }}%
-
 \RequirePackage{flowfram}
 \setlength{\vcolumnsep}{2\baselineskip}
 \setlength{\columnsep}{2\baselineskip}
@@ -208,9 +188,9 @@
 \newlength\sidebaroffset
 \setlength{\sidebarwidth}{\sidebarproportion\textwidth}
 \setlength{\logoboxwidth}{\sidebarwidth}
-\addtolength{\logoboxwidth}{-\vcolumnsep}
+\addtolength{\logoboxwidth}{-\columnsep}
 \newlength\logoboxoffset
-\setlength{\logoboxoffset}{\vcolumnsep}
+\setlength{\logoboxoffset}{\columnsep}
 \if@uuposter@TitleHeightSet
 \if@uuposter@top
 \setlength{\logoboxwidth}{\uuposter@TitleHeight}
@@ -265,16 +245,6 @@
 \else
 \setstaticframe{1}{label={title}}
 \fi
-\if@uuposter@ruled
-\newcounter{firstcol}
-\setcounter{firstcol}{1}
-\newcounter{secondcol}
-\forloop{2}{\uuposter@columns}{secondcol}{%
-\insertvrule{flow}{\thefirstcol}{flow}{\thesecondcol}
-\addtocounter{firstcol}{1}
-}
-\fi
-
 \newlength\uupostercolwidth
 \getflowbounds{1}
 \setlength{\uupostercolwidth}{\ffareawidth}
@@ -298,8 +268,39 @@
 \setlength{\authoroffset}{6em}
 \fi
 \fi
-\setallstaticframes{valign=t}
 
+\if@uuposter@hasbib
+\newlength{\bibframeheight}
+\setlength{\bibframeheight}{\uuposter@biblines\baselineskip}
+\newlength{\biboffset}
+\setlength{\biboffset}{\bibframeheight}
+\addtolength{\biboffset}{\uuposter@biboffset\baselineskip}
+\computeflowframearea{1,\uuposter@columns}
+\addtolength{\ffareaheight}{-\biboffset}
+\newcounter{maincol}
+\setcounter{maincol}{1}
+\forloop{1}{\uuposter@columns}{maincol}{%
+\setflowframe{\themaincol}{y=\biboffset,height=\ffareaheight}
+}
+\newlength{\bibframewidth}
+\setlength{\bibframewidth}{\ffareawidth}
+\newstaticframe{\bibframewidth}{\bibframeheight}{\ffareax}{0in}[bibframe]
+\setstaticframe*{bibframe}{border=plain}
+\renewcommand{\refname}{}
+\fi
+\newcommand\uuposterInsertVerticalRules{
+\newcounter{firstcol}
+\setcounter{firstcol}{1}
+\newcounter{secondcol}
+\forloop{2}{\uuposter@columns}{secondcol}{%
+\insertvrule{flow}{\thefirstcol}{flow}{\thesecondcol}
+\addtocounter{firstcol}{1}
+}
+}
+\if@uuposter@ruled
+\uuposterInsertVerticalRules
+\fi
+\setallstaticframes{valign=t}
 \newcommand\uuposterTitleTextColor{%
 \if@uuposter@top
 \color{uuposter@fg}%
@@ -319,9 +320,26 @@
     \@title \par}%
   \par
   }
+ %    \end{macrocode}
+ % \end{macro}
+ % Modify these macros to control the placement of the title:
+ % \begin{macro}{\uuposterBeforeTitle}
+ %    \begin{macrocode}
 \newcommand\uuposterBeforeTitle{}
+ %    \end{macrocode}
+ % \end{macro}
+ % \begin{macro}{\uuposterTitleContent}
+ %    \begin{macrocode}
 \newcommand\uuposterTitleContent{\maketitle}
+ %    \end{macrocode}
+ % \end{macro}
+ % \begin{macro}{\uuposterAfterTitle}
+ %    \begin{macrocode}
 \newcommand\uuposterAfterTitle{}
+ %    \end{macrocode}
+ % \end{macro}
+ % \begin{macro}{\uuposterTitle}
+ %    \begin{macrocode}
 \newcommand\uuposterTitle{%
 \uuposterBeforeTitle%
 \uuposterTitleContent%
@@ -371,7 +389,6 @@
 \newcommand{\uuposterInst}[1]{%
 \footnote{\uuposterInstTextColor\uuposterInstTextStyle{#1}}%
 }
-
 \newcommand\uuposterBeforeLogo{%
 \vspace{\logoboxoffset}
 }
@@ -382,7 +399,6 @@
 \uuposterLogoContent%
 \uuposterAfterLogo%
 }
-
 \newcommand\uuposterSectionTextColor{\color{black}}
 \newcommand\uuposterSectionTextStyle{\sffamily\Huge}
 \newcommand\uuposterSubSectionTextColor{\uuposterSectionTextColor}
@@ -401,7 +417,6 @@
 \newcommand\uuposterBodyTextColor{\color{black}}
 \hyphenpenalty 10000
 \tolerance 5000
-
 \AtBeginDocument{%
 \if@uuposter@sigil@corner
 \begin{staticcontents*}{background}
@@ -436,11 +451,7 @@
 \fi
 \uuposterBodyTextColor\uuposterBodyTextStyle%
 }
-
-\newcommand{\dummyMacro}{}
-\newenvironment{dummyEnv}{%
-}{%
-}
+\endinput%
 \endinput
 %%
 %% End of file `UUposter.cls'.
