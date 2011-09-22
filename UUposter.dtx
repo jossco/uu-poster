@@ -22,7 +22,7 @@
 %<class>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<class>\ProvidesClass{UUposter}
 %<*class>
-    [2011/09/20 v0.5 Class for making scientific posters in the style of Uppsala University]
+    [2011/09/22 v0.6 Class for making scientific posters in the style of Uppsala University]
 %</class>
 %
 %<*driver>
@@ -147,14 +147,11 @@
 %\subsection{Bibliography}
 % Support for including a bibliography is limited, but you shouldn't need a fancy bibliography on a poster anyway\dots Anyway, including the \textbf{bib} option will create a static frame (|bibframe|) at the bottom of the poster. By default, it is |3\baselineskip| in height, and is offset from the bottom of the text frames by |1\baselineskip|, but both of those values are adjustable. This will, of course, make the text frames shorter.
 %
-% There is a bibtex style file (\textsf{UUposter.bst}) included with the package that will make for relatively short bibliographic entries, but I make no guarantees that it will handle strange cases well. If you want to use it, you'll need to copy it somewhere that your \TeX can find it (try \textasciitilde/Library/texmf/bibtex/bst/ if you're using MacTex).
-% Not knowing what your bibtex file is named, the class cannot be responsible for filling |bibframe|, so you'll need to do that yourself with something like this in the body of your document:
-%\begin{verbatim}
-%\begin{staticcontents*}{bibframe}\footnotesize
-%\bibliographystyle{UUposter}
-%\bibliography{bibtexfilename}
-%\end{staticcontents*}
-%\end{verbatim}
+% \DescribeMacro{\uuposterBibliography} |\uuposterBibliography| \oarg{style} \marg{bib file} will fill |bibframe|.
+% The mandatory argument is the name of your bibliography file (without the |.bib| extension). The optional argument is the name of the bibtex style you would like to use; the default is to use |UUposter.bst|, included with this package, to give quite short bibliography entries, but any style should work.
+% If you want to use the included style, you'll need to copy it somewhere that your \TeX can find it (try \textasciitilde/Library/texmf/bibtex/bst/ if you're using MacTex).
+%
+% The bibliography will be typeset in |\footnotesize| text of |\uuposterBodyTextColor|; you can redefine \DescribeMacro{\uuposterBibTextStyle}|\uuposterBibTextStyle|  or \DescribeMacro{\uuposterBibTextColor}|\uuposterBibTextColor|  if you'd like to customize this behaviour.
 % \section{Options}
 % Any unrecognized options are assumed to be intended for the \textsf{a0poster} class.
 %\begin{description}
@@ -254,7 +251,7 @@
 		\@uuposter@sigil@bottomfalse
 		\@uuposter@sigil@rightfalse
 	\or 
-		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SV_10Svart}}
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_SV_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@toptrue
@@ -262,7 +259,7 @@
 		\@uuposter@sigil@bottomfalse
 		\@uuposter@sigil@leftfalse
 	\or
-		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NO_10Svart}}
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_NO_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@bottomtrue
@@ -270,7 +267,7 @@
 		\@uuposter@sigil@topfalse
 		\@uuposter@sigil@rightfalse
 	\or
-		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NV_10Svart}}
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_NV_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@bottomtrue
@@ -280,7 +277,7 @@
 	\or
 		\@uuposter@sigil@margintrue
 		\@uuposter@sigil@cornerfalse
-		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_marginalsigill_5Svart}}
+		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_marginalsigill_5Svart}}
 	\fi
 }{\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}}
 \DeclareOptionX{sigilwidth}[0.5]{\def\sigilproportion{#1}}
@@ -493,10 +490,30 @@
 	\newlength{\bibframewidth}
 	\setlength{\bibframewidth}{\ffareawidth}
 	\newstaticframe{\bibframewidth}{\bibframeheight}{\ffareax}{0in}[bibframe]
-	\setstaticframe*{bibframe}{border=plain}
+	%\setstaticframe*{bibframe}{border=plain}
+%    \end{macrocode}
+% By default the bibliography gets a section level heading, which is far too distracting in this context.
+% Would like to have the option to include a smaller header, but haven't been able to make it work yet.
+% For now, just set the name of the section to be empty, and it goes away.
+%    \begin{macrocode}
 	\renewcommand{\refname}{}
 \fi
+\newcommand{\uuposterBibTextColor}{\uuposterBodyTextColor}
+\newcommand{\uuposterBibTextStyle}{\footnotesize}
 %    \end{macrocode}
+% \begin{macro}{\uuposterBibliography}
+% Fill the bibliography frame.
+% \changes{v0.6}{2011/09/22}{Added a macro to fill the bibliography with a specified |.bib| file, using an optional |.bst| file (default is |UUposter.bst|.}
+%    \begin{macrocode}
+\newcommand{\uuposterBibliography}[2][UUposter]{%
+	\begin{staticcontents*}{bibframe}\uuposterBibTextColor\uuposterBibTextStyle
+		\vskip-\baselineskip
+		\bibliographystyle{#1}
+		\bibliography{#2}
+	\end{staticcontents*}%
+}
+%    \end{macrocode}
+% \end{macro}
 %\subsection{Vertical Rules}
 % \begin{macro}{\uuposterInsertVerticalRules}
 % Insert a vertical rule between every pair of flow frames:

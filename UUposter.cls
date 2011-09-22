@@ -22,7 +22,7 @@
 %% 
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 \ProvidesClass{UUposter}
-    [2011/09/19 v0.4b Class for making scientific posters in the style of Uppsala University]
+    [2011/09/22 v0.6 Class for making scientific posters in the style of Uppsala University]
 \RequirePackage{xkeyval}
 \newif\if@uuposter@xetex
 \newif\if@uuposter@times
@@ -88,7 +88,7 @@
 \@uuposter@sigil@bottomfalse
 \@uuposter@sigil@rightfalse
 \or
-\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SV_10Svart}}
+\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_SV_10Svart}}
 \@uuposter@sigil@cornertrue
 \@uuposter@sigil@marginfalse
 \@uuposter@sigil@toptrue
@@ -96,7 +96,7 @@
 \@uuposter@sigil@bottomfalse
 \@uuposter@sigil@leftfalse
 \or
-\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NO_10Svart}}
+\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_NO_10Svart}}
 \@uuposter@sigil@cornertrue
 \@uuposter@sigil@marginfalse
 \@uuposter@sigil@bottomtrue
@@ -104,7 +104,7 @@
 \@uuposter@sigil@topfalse
 \@uuposter@sigil@rightfalse
 \or
-\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_NV_10Svart}}
+\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_NV_10Svart}}
 \@uuposter@sigil@cornertrue
 \@uuposter@sigil@marginfalse
 \@uuposter@sigil@bottomtrue
@@ -114,7 +114,7 @@
 \or
 \@uuposter@sigil@margintrue
 \@uuposter@sigil@cornerfalse
-\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_marginalsigill_5Svart}}
+\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_marginalsigill_5Svart}}
 \fi
 }{\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}}
 \DeclareOptionX{sigilwidth}[0.5]{\def\sigilproportion{#1}}
@@ -285,9 +285,17 @@
 \newlength{\bibframewidth}
 \setlength{\bibframewidth}{\ffareawidth}
 \newstaticframe{\bibframewidth}{\bibframeheight}{\ffareax}{0in}[bibframe]
-\setstaticframe*{bibframe}{border=plain}
 \renewcommand{\refname}{}
 \fi
+\newcommand{\uuposterBibTextColor}{\uuposterBodyTextColor}
+\newcommand{\uuposterBibTextStyle}{\footnotesize}
+\newcommand{\uuposterBibliography}[2][UUposter]{%
+\begin{staticcontents*}{bibframe}\uuposterBibTextColor\uuposterBibTextStyle
+\vskip-\baselineskip
+\bibliographystyle{#1}
+\bibliography{#2}
+\end{staticcontents*}%
+}
 \newcommand\uuposterInsertVerticalRules{
 \newcounter{firstcol}
 \setcounter{firstcol}{1}
