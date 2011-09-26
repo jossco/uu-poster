@@ -10,6 +10,10 @@ $(CLASSES) : % : %.cls %.pdf
 
 $(STYLES) : % : %.sty %.pdf
 
+$(patsubst %,%.pdf,$(CLASSES)) : %.pdf : %.cls
+
+$(patsubst %,%.pdf,$(STYLES)) : %.pdf : %.sty
+
 %.cls : %.ins %.dtx
 	$(LATEX) $<
 

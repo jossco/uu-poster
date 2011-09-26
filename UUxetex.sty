@@ -1,70 +1,97 @@
+%%
+%% This is file `UUxetex.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% UUxetex.dtx  (with options: `package')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2011 by Joseph Scott <joseph.scott@it.uu.se>
+%% 
+%% This file may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.2 of this license
+%% or (at your option) any later version.  The latest version of this
+%% license is in:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.2 or later is part of all distributions of LaTeX version
+%% 1999/12/01 or later.
+%% 
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 \ProvidesPackage{UUxetex}
+    [2011/09/23 v1.1 Uppsala University fonts for XeLaTeX]
 \RequirePackage{xkeyval}
-\newif\if@uuxetex@sanserif
-\DeclareOptionX{sanserif}[Arial]{
-	\@uuxetex@sanseriftrue
-	\def \uuxetex@sanserif@font {#1}
+\newif\if@uuxetex@standard
+\DeclareOptionX{standard} {
+\def \uuxetex@sanserif@font {Gill Alt One MT}
+\def \uuxetex@serif@font {Berling Roman}
+\@uuxetex@standardtrue
 }
-\newif\if@uuxetex@serif
-\DeclareOptionX{serif}[Times]{
-	\@uuxetex@seriftrue
-	\def \uuxetex@serif@font {#1}
+\DeclareOptionX{sanserif}[Arial]{
+\def \uuxetex@sanserif@font {#1}
+\@uuxetex@standardfalse
+}
+\DeclareOptionX{serif}[Times New Roman]{
+\def \uuxetex@serif@font {#1}
+\@uuxetex@standardfalse
 }
 \newif\if@uuxetex@mathoverride
 \DeclareOptionX{math}[XITS Math]{
-	\@uuxetex@mathoverridetrue
-	\def \uuxetex@math@font {#1}
+\@uuxetex@mathoverridetrue
+\def \uuxetex@math@font {#1}
 }
 \newif\if@uuxetex@xits
 \DeclareOptionX{xits}{
-	\@uuxetex@xitstrue
+\def \uuxetex@math@font {XITS Math}
+\@uuxetex@xitstrue
+\@uuxetex@mathoverridetrue
 }
-\newif\if@uuxetex@backups
-\DeclareOptionX{uubackupfonts}{
-	\@uuxetex@backupstrue
+\DeclareOptionX{backup}{
+\ExecuteOptionsX{serif,sanserif}
 }
 \newif\if@uuxetex@beamer
 \DeclareOptionX{beamer}{
-	\@uuxetex@beamertrue
+\def\uuxetex@sanserif@font{Gill Sans}
 }
+\newif\if@uuxetex@noreplace
+\DeclareOptionX{noreplace}{
+\@uuxetex@noreplacetrue
+}
+\ExecuteOptionsX{standard}
 \ProcessOptionsX\relax
 
 \RequirePackage{xunicode} %Unicode extras!
 \RequirePackage{xltxtra}
 
 \if@uuxetex@mathoverride
-	\RequirePackage{unicode-math}
-	\setmathfont{\uuxetex@math@font}
-\else
-	\if@uuxetex@xits
-		\RequirePackage{unicode-math}
-		\setmathfont{XITS Math}
-		\setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math}
-	\fi
+\RequirePackage{unicode-math}
+\setmathfont{\uuxetex@math@font}
+\if@uuxetex@xits
+\setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math}
+\fi
 \fi
 
 \defaultfontfeatures{Mapping=tex-text}
 \renewcommand{\nobreakspace}{\nobreak\ }
 
-\if@uuxetex@backups
-%%% Standard backup fonts for UU publications:
-	\setsansfont{Arial}
-	\setmainfont{Times New Roman}
-	\newfontinstance\uubodyfont{Times New Roman}
+\if@uuxetex@noreplace
+\newfontinstance{\UUsans}{\uuxetex@sanserif@font}
+\if@uuxetex@standard
+\newfontinstance{\UUroman}[BoldFont={Berling Bold}, ItalicFont={Berling Italic}]{Berling Roman}
 \else
-	\if@uuxetex@sanserif
-		\setsansfont{\uuxetex@sanserif@font}
-	\else
-		\if@uuxetex@beamer
-			\setsansfont{Gill Sans}
-		\else
-			\setsansfont{Gill Alt One MT}
-		\fi
-	\fi
-	
-	\if@uuxetex@serif
-		\setmainfont{\uuxetex@serif@font}
-	\else
-		\setmainfont[BoldFont={Berling Bold}, ItalicFont={Berling Italic}]{Berling Roman}
-	\fi
+\newfontinstance{\UUroman}{\uuxetex@serif@font}
 \fi
+\else
+\setsansfont{\uuxetex@sanserif@font}
+\if@uuxetex@standard
+\setmainfont[BoldFont={Berling Bold}, ItalicFont={Berling Italic}]{Berling Roman}
+\else
+\setmainfont{\uuxetex@serif@font}
+\fi
+\fi
+\endinput
+%%
+%% End of file `UUxetex.sty'.
