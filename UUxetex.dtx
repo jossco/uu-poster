@@ -94,7 +94,7 @@
 % \item[backup] Use Arial and Times New Roman fonts.
 % \item[serif=\meta{font}] Specify a serif replacement font by name.
 % \item[sanserif=\meta{font}] Specify a san-serif replacement font by name.
-% \item[noreplace] Instead of replacing the main fonts, defines \DescribeMacro{\UUsans}|\UUsans|  and \DescribeMacro{\UUroman}|\UUroman|  as new font instances, so you can use them just where you want them.
+% \item[noreplace] Does not replace standard document fonts. University fonts can be accessed via two macros: \DescribeMacro{\UUsans}|\UUsans|  and \DescribeMacro{\UUroman}|\UUroman|. Note that these macros are always defined, not just when \textbf{noreplace} is invoked.
 % \end{description}
 % \StopEventually{}
 %
@@ -133,9 +133,9 @@
 \DeclareOptionX{beamer}{
 	\def\uuxetex@sanserif@font{Gill Sans}
 }
-\newif\if@uuxetex@noreplace
+\newif\if@uuxetex@replace
 \DeclareOptionX{noreplace}{
-	\@uuxetex@noreplacetrue
+	\@uuxetex@replacefalse
 }
 \ExecuteOptionsX{standard}
 \ProcessOptionsX\relax
@@ -154,7 +154,6 @@
 \defaultfontfeatures{Mapping=tex-text}
 \renewcommand{\nobreakspace}{\nobreak\ }
 
-\if@uuxetex@noreplace
 %    \end{macrocode}
 % \begin{macro}{\UUsans}
 % \begin{macro}{\UUroman}
@@ -171,7 +170,7 @@
 % \end{macro}
 % \end{macro}
 %    \begin{macrocode}
-\else
+\if@uuxetex@replace
 	\setsansfont{\uuxetex@sanserif@font}
 	\if@uuxetex@standard
 		\setmainfont[BoldFont={Berling Bold}, ItalicFont={Berling Italic}]{Berling Roman}

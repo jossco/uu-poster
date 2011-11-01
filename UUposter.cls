@@ -22,8 +22,9 @@
 %% 
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 \ProvidesClass{UUposter}
-    [2011/09/22 v0.6 Class for making scientific posters in the style of Uppsala University]
+    [2011/11/01 v0.8 Class for making scientific posters in the style of Uppsala University]
 \RequirePackage{xkeyval}
+\RequirePackage{xparse}
 \newif\if@uuposter@xetex
 \newif\if@uuposter@times
 \@uuposter@timestrue
@@ -77,10 +78,10 @@
 \DeclareOptionX{columns}[2]{\def \uuposter@columns {#1}}
 \DeclareOptionX{ruled}{\@uuposter@ruledtrue}
 \DeclareOptionX{logo}[4f]{\def\uuposter@LogoInclude{\includegraphics[width=\logoboxwidth]{UU_logo_#1_84}}}
-\newcommand{\uuposterSigil}{}
+\NewDocumentCommand \uuposterSigil {} {}
 \define@choicekey+{UUposter.cls}{sigil}[\val\nr]{NW,NE,SW,SE,margin}[SE]{
 \ifcase\nr\relax
-\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SO_10Svart}}
+\RenewDocumentCommand \uuposterSigil {} {\includegraphics[width=\sigilwidth]{UU_sigill_SO_10Svart}}
 \@uuposter@sigil@cornertrue
 \@uuposter@sigil@marginfalse
 \@uuposter@sigil@toptrue
@@ -88,7 +89,7 @@
 \@uuposter@sigil@bottomfalse
 \@uuposter@sigil@rightfalse
 \or
-\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_SV_10Svart}}
+\RenewDocumentCommand \uuposterSigil {} {\includegraphics[width=\sigilwidth]{img/UU_sigill_SV_10Svart}}
 \@uuposter@sigil@cornertrue
 \@uuposter@sigil@marginfalse
 \@uuposter@sigil@toptrue
@@ -96,7 +97,7 @@
 \@uuposter@sigil@bottomfalse
 \@uuposter@sigil@leftfalse
 \or
-\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_NO_10Svart}}
+\RenewDocumentCommand \uuposterSigil {} {\includegraphics[width=\sigilwidth]{img/UU_sigill_NO_10Svart}}
 \@uuposter@sigil@cornertrue
 \@uuposter@sigil@marginfalse
 \@uuposter@sigil@bottomtrue
@@ -104,7 +105,7 @@
 \@uuposter@sigil@topfalse
 \@uuposter@sigil@rightfalse
 \or
-\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_NV_10Svart}}
+\RenewDocumentCommand \uuposterSigil {} {\includegraphics[width=\sigilwidth]{img/UU_sigill_NV_10Svart}}
 \@uuposter@sigil@cornertrue
 \@uuposter@sigil@marginfalse
 \@uuposter@sigil@bottomtrue
@@ -114,7 +115,7 @@
 \or
 \@uuposter@sigil@margintrue
 \@uuposter@sigil@cornerfalse
-\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_marginalsigill_5Svart}}
+\RenewDocumentCommand \uuposterSigil {} {\includegraphics[width=\sigilwidth]{img/UU_marginalsigill_5Svart}}
 \fi
 }{\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}}
 \DeclareOptionX{sigilwidth}[0.5]{\def\sigilproportion{#1}}
@@ -289,22 +290,22 @@
 \fi
 \newcommand{\uuposterBibTextColor}{\uuposterBodyTextColor}
 \newcommand{\uuposterBibTextStyle}{\footnotesize}
-\newcommand{\uuposterBibliography}[2][UUposter]{%
+\NewDocumentCommand \uuposterBibliography { O{UUposter} m }{%
 \begin{staticcontents*}{bibframe}\uuposterBibTextColor\uuposterBibTextStyle
 \vskip-\baselineskip
 \bibliographystyle{#1}
 \bibliography{#2}
 \end{staticcontents*}%
 }
-\newcommand\uuposterInsertVerticalRules{
-\newcounter{firstcol}
-\setcounter{firstcol}{1}
-\newcounter{secondcol}
+\NewDocumentCommand \uuposterInsertVerticalRules {} {%
+\newcounter{firstcol}%
+\setcounter{firstcol}{1}%
+\newcounter{secondcol}%
 \forloop{2}{\uuposter@columns}{secondcol}{%
-\insertvrule{flow}{\thefirstcol}{flow}{\thesecondcol}
-\addtocounter{firstcol}{1}
-}
-}
+\insertvrule{flow}{\thefirstcol}{flow}{\thesecondcol}%
+\addtocounter{firstcol}{1}%
+}%
+}%
 \if@uuposter@ruled
 \uuposterInsertVerticalRules
 \fi
@@ -394,7 +395,7 @@
 \newcommand\uuposterAfterAuthor{}
 \newcommand\uuposterInstTextStyle{\large\sffamily}
 \newcommand\uuposterInstTextColor{\uuposterAuthorTextColor}
-\newcommand{\uuposterInst}[1]{%
+\NewDocumentCommand \uuposterInst { m } {%
 \footnote{\uuposterInstTextColor\uuposterInstTextStyle{#1}}%
 }
 \newcommand\uuposterBeforeLogo{%
@@ -421,8 +422,8 @@
               {-2.25ex\@plus -1ex \@minus -.2ex}%
               {1ex \@plus .2ex}%
               {\uuposterSubSectionTextColor\uuposterSubSectionTextStyle}}
-\newcommand\uuposterBodyTextStyle{\normalsize}
-\newcommand\uuposterBodyTextColor{\color{black}}
+\NewDocumentCommand \uuposterBodyTextStyle {} {\normalsize}
+\NewDocumentCommand \uuposterBodyTextColor {} {\color{black}}
 \hyphenpenalty 10000
 \tolerance 5000
 \AtBeginDocument{%

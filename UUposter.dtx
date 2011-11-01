@@ -22,7 +22,7 @@
 %<class>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<class>\ProvidesClass{UUposter}
 %<*class>
-    [2011/09/22 v0.6 Class for making scientific posters in the style of Uppsala University]
+    [2011/11/01 v0.8 Class for making scientific posters in the style of Uppsala University]
 %</class>
 %
 %<*driver>
@@ -56,11 +56,14 @@
 %   Right brace   \}     Tilde         \~}
 %
 %
-% \changes{0.1b}{2011-09-03}{Initial Version}
-% \changes{0.2b}{2011-09-04}{xetex driver optional, changed image files}
-% \changes{0.3b}{2011-09-05}{Ruled option now supports variable number of columns}
-% \changes{0.4b}{2011-09-19}{fixed header height calculation in landscape mode}
-% \changes{0.5}{2011-09-20}{Moved to .dtx .ins structure, documented source file}
+% \changes{v0.1b}{2011/09/03}{Initial Version}
+% \changes{v0.2b}{2011/09/04}{xetex driver optional, changed image files}
+% \changes{v0.3b}{2011/09/05}{Ruled option now supports variable number of columns}
+% \changes{v0.4b}{2011/09/19}{fixed header height calculation in landscape mode}
+% \changes{v0.5}{2011/09/20}{Moved to .dtx .ins structure, documented source file}
+% \changes{v0.6}{2011/09/22}{Simpler bibliography insertion}
+% \changes{v0.7}{2011/09/22}{Completed switch to docstrip format}
+% \changes{v0.8}{2011/11/01}{Using xparse for macro definitions}
 %
 % \GetFileInfo{UUposter.dtx}
 %
@@ -187,6 +190,7 @@
 % Using \textsf{xkeyval} for key, value pair processing.
 %    \begin{macrocode}
 \RequirePackage{xkeyval}
+\RequirePackage{xparse}
 \newif\if@uuposter@xetex
 \newif\if@uuposter@times
 \@uuposter@timestrue
@@ -240,10 +244,15 @@
 \DeclareOptionX{columns}[2]{\def \uuposter@columns {#1}}
 \DeclareOptionX{ruled}{\@uuposter@ruledtrue}
 \DeclareOptionX{logo}[4f]{\def\uuposter@LogoInclude{\includegraphics[width=\logoboxwidth]{UU_logo_#1_84}}}
-\newcommand{\uuposterSigil}{}
+%    \end{macrocode}
+% \begin{macro}{uuposterSigil}
+% Insert an appropriate version of the University sigil. Not all options are fully implemented.
+% \changes{0.6}{2011/09/22}{Moved image files to img subdir}
+%    \begin{macrocode}
+\NewDocumentCommand \uuposterSigil {} {}
 \define@choicekey+{UUposter.cls}{sigil}[\val\nr]{NW,NE,SW,SE,margin}[SE]{
 	\ifcase\nr\relax
-		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{UU_sigill_SO_10Svart}}
+		\RenewDocumentCommand \uuposterSigil {} {\includegraphics[width=\sigilwidth]{UU_sigill_SO_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@toptrue
@@ -251,7 +260,7 @@
 		\@uuposter@sigil@bottomfalse
 		\@uuposter@sigil@rightfalse
 	\or 
-		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_SV_10Svart}}
+		\RenewDocumentCommand \uuposterSigil {} {\includegraphics[width=\sigilwidth]{img/UU_sigill_SV_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@toptrue
@@ -259,7 +268,7 @@
 		\@uuposter@sigil@bottomfalse
 		\@uuposter@sigil@leftfalse
 	\or
-		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_NO_10Svart}}
+		\RenewDocumentCommand \uuposterSigil {} {\includegraphics[width=\sigilwidth]{img/UU_sigill_NO_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@bottomtrue
@@ -267,7 +276,7 @@
 		\@uuposter@sigil@topfalse
 		\@uuposter@sigil@rightfalse
 	\or
-		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_sigill_NV_10Svart}}
+		\RenewDocumentCommand \uuposterSigil {} {\includegraphics[width=\sigilwidth]{img/UU_sigill_NV_10Svart}}
 		\@uuposter@sigil@cornertrue
 		\@uuposter@sigil@marginfalse
 		\@uuposter@sigil@bottomtrue
@@ -277,9 +286,12 @@
 	\or
 		\@uuposter@sigil@margintrue
 		\@uuposter@sigil@cornerfalse
-		\renewcommand{\uuposterSigil}{\includegraphics[width=\sigilwidth]{img/UU_marginalsigill_5Svart}}
+		\RenewDocumentCommand \uuposterSigil {} {\includegraphics[width=\sigilwidth]{img/UU_marginalsigill_5Svart}}
 	\fi
 }{\ClassWarning{UUposter}{Ignoring unrecognized value for option 'sigil' (valid options: NW,NE,SW,SE,margin)}}
+%    \end{macrocode}
+% \end{macro}
+%    \begin{macrocode}
 \DeclareOptionX{sigilwidth}[0.5]{\def\sigilproportion{#1}}
 \DeclareOptionX{sidebarwidth}[0.2]{\def\sidebarproportion{#1}}
 \DeclareOptionX{titleheight}[6em]{
@@ -472,7 +484,7 @@
 % Create a bibliography frame at the bottom of the page if requested.
 % There is an assumption here that the height of all the flow frames are equal,
 % so using the height of just the first frame makes sense for all of them.
-% \changes{0.5}{2011-09-20}{Added the option for a bibliography frame at the bottom.}
+% \changes{0.5}{2011/09/20}{Added the option for a bibliography frame at the bottom.}
 %    \begin{macrocode}
 \if@uuposter@hasbib
 	\newlength{\bibframeheight}
@@ -503,9 +515,9 @@
 %    \end{macrocode}
 % \begin{macro}{\uuposterBibliography}
 % Fill the bibliography frame.
-% \changes{v0.6}{2011/09/22}{Added a macro to fill the bibliography with a specified |.bib| file, using an optional |.bst| file (default is |UUposter.bst|.}
+% \changes{0.6}{2011/09/22}{Added a macro to fill the bibliography with a specified |.bib| file, using an optional |.bst| file (default is |UUposter.bst|.}
 %    \begin{macrocode}
-\newcommand{\uuposterBibliography}[2][UUposter]{%
+\NewDocumentCommand \uuposterBibliography { O{UUposter} m }{%
 	\begin{staticcontents*}{bibframe}\uuposterBibTextColor\uuposterBibTextStyle
 		\vskip-\baselineskip
 		\bibliographystyle{#1}
@@ -517,17 +529,17 @@
 %\subsection{Vertical Rules}
 % \begin{macro}{\uuposterInsertVerticalRules}
 % Insert a vertical rule between every pair of flow frames:
-%\changes{0.5}{2011-09-20}{Made the insert rules macro user accessible}
+%\changes{0.5}{2011/09/20}{Made the insert rules macro user accessible}
 %    \begin{macrocode}
-\newcommand\uuposterInsertVerticalRules{
-	\newcounter{firstcol}
-	\setcounter{firstcol}{1}
-	\newcounter{secondcol}
+\NewDocumentCommand \uuposterInsertVerticalRules {} {%
+	\newcounter{firstcol}%
+	\setcounter{firstcol}{1}%
+	\newcounter{secondcol}%
 	\forloop{2}{\uuposter@columns}{secondcol}{%
-		\insertvrule{flow}{\thefirstcol}{flow}{\thesecondcol}
-		\addtocounter{firstcol}{1}
-	}
-}
+		\insertvrule{flow}{\thefirstcol}{flow}{\thesecondcol}%
+		\addtocounter{firstcol}{1}%
+	}%
+}%
 %    \end{macrocode}
 % \end{macro}
 %    \begin{macrocode}
@@ -694,7 +706,7 @@
 % \begin{macro}{\uuposterInst}
 %
 %    \begin{macrocode}
-\newcommand{\uuposterInst}[1]{%
+\NewDocumentCommand \uuposterInst { m } {%
 	\footnote{\uuposterInstTextColor\uuposterInstTextStyle{#1}}%
 }
 %    \end{macrocode}
@@ -762,8 +774,8 @@
 % \begin{macro}{\uuposterBodyTextStyle}
 % \begin{macro}{\uuposterBodyTextColor}
 %    \begin{macrocode}
-\newcommand\uuposterBodyTextStyle{\normalsize}
-\newcommand\uuposterBodyTextColor{\color{black}}
+\NewDocumentCommand \uuposterBodyTextStyle {} {\normalsize}
+\NewDocumentCommand \uuposterBodyTextColor {} {\color{black}}
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}   

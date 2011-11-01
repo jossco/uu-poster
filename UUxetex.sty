@@ -56,9 +56,9 @@
 \DeclareOptionX{beamer}{
 \def\uuxetex@sanserif@font{Gill Sans}
 }
-\newif\if@uuxetex@noreplace
+\newif\if@uuxetex@replace
 \DeclareOptionX{noreplace}{
-\@uuxetex@noreplacetrue
+\@uuxetex@replacefalse
 }
 \ExecuteOptionsX{standard}
 \ProcessOptionsX\relax
@@ -77,14 +77,13 @@
 \defaultfontfeatures{Mapping=tex-text}
 \renewcommand{\nobreakspace}{\nobreak\ }
 
-\if@uuxetex@noreplace
 \newfontinstance{\UUsans}{\uuxetex@sanserif@font}
 \if@uuxetex@standard
 \newfontinstance{\UUroman}[BoldFont={Berling Bold}, ItalicFont={Berling Italic}]{Berling Roman}
 \else
 \newfontinstance{\UUroman}{\uuxetex@serif@font}
 \fi
-\else
+\if@uuxetex@replace
 \setsansfont{\uuxetex@sanserif@font}
 \if@uuxetex@standard
 \setmainfont[BoldFont={Berling Bold}, ItalicFont={Berling Italic}]{Berling Roman}

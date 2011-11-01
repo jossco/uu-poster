@@ -35,6 +35,15 @@ $(patsubst %,%.pdf,$(STYLES)) : %.pdf : %.sty
 %.pdf : %.dtx %.ind %.gls
 	$(LATEX) $<
 
+VERSION := $(shell git describe --tags)
+BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+.PHONY : archive
+archive : $(VERSION).zip
+
+%.zip :
+	git archive --worktree-attributes -o $@ $(BRANCH)
+	cp $@  ~/cp/web/jossc163/latex/uuposter/
+
 .PHONY : clean	
 clean :
 	-rm -f $(patsubst %,%.ind,$(OBJECTS))
@@ -46,6 +55,7 @@ clean :
 	-rm -f $(patsubst %,%.gls,$(OBJECTS))
 	-rm -f $(patsubst %,%.glo,$(OBJECTS))
 	-rm -f $(patsubst %,%.ilg,$(OBJECTS))
+	-rm -f UUposter-*.zip
 
 .PHONY : veryclean
 veryclean : clean
