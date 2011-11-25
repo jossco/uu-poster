@@ -1,5 +1,5 @@
 CLASSES = UUposter
-STYLES = UUxetex
+STYLES =
 OBJECTS = $(CLASSES) $(STYLES)
 LATEX = pdflatex
 MAKEINDEX = makeindex
